@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { scenarios, getScenarioById, gameConfig } from '../data/scenarios'
 
 export function useGameState() {
@@ -35,10 +35,32 @@ export function useGameState() {
   // Delta animation state - tracks changes to show floating indicators
   const [previousMemory, setPreviousMemory] = useState(null)
   const [memoryDeltas, setMemoryDeltas] = useState({}) // { Lab_1: -5, Lab_2: 2, etc }
+  const [pendingDeltas, setPendingDeltas] = useState({}) // Deltas waiting for modals to close
   const [showDeltas, setShowDeltas] = useState(false)
   
   // Get current scenario
   const currentScenario = getScenarioById(currentScenarioId)
+  
+  // Show delta animations only when ALL modals are closed
+  useEffect(() => {
+    const hasPending = Object.keys(pendingDeltas).length > 0
+    const allModalsClosed = !showFeedback && !showTimePassage && !showKnowledgeCheck
+    
+    if (hasPending && allModalsClosed) {
+      // Transfer pending deltas to active deltas and show animation
+      setMemoryDeltas(pendingDeltas)
+      setPendingDeltas({})
+      setShowDeltas(true)
+      
+      // Clear deltas after animation completes
+      const timer = setTimeout(() => {
+        setShowDeltas(false)
+        setMemoryDeltas({})
+      }, 2000)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [showFeedback, showTimePassage, showKnowledgeCheck, pendingDeltas])
   
   // Interpolate memory keys in text
   const interpolate = useCallback((template) => {
@@ -148,6 +170,7 @@ export function useGameState() {
     setShowTimePassage(false)
     
     // Calculate deltas for animation (compare previous memory to current)
+    // Store as pending - will show when all modals are closed
     if (previousMemory) {
       const deltas = {}
       Object.keys(memory).forEach(key => {
@@ -158,13 +181,7 @@ export function useGameState() {
         }
       })
       if (Object.keys(deltas).length > 0) {
-        setMemoryDeltas(deltas)
-        setShowDeltas(true)
-        // Clear deltas after animation completes
-        setTimeout(() => {
-          setShowDeltas(false)
-          setMemoryDeltas({})
-        }, 2000)
+        setPendingDeltas(deltas)
       }
       setPreviousMemory(null)
     }
@@ -228,6 +245,7 @@ export function useGameState() {
     setShowKnowledgeCheck(false)
     setPreviousMemory(null)
     setMemoryDeltas({})
+    setPendingDeltas({})
     setShowDeltas(false)
   }, [])
   

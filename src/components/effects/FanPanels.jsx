@@ -36,7 +36,7 @@ function FloatingDeltaIndicator({ delta, isLab }) {
   )
 }
 
-export function FanPanels({ medications = [], labs = [], interpolate, memoryDeltas = {} }) {
+export function FanPanels({ medications = [], labs = [], interpolate, memoryDeltas = {}, shouldAnimate = false }) {
   // Track previous values for change animation
   const prevValuesRef = useRef({})
   const [valueChanges, setValueChanges] = useState({}) // { key: 'up' | 'down' | null }
@@ -132,11 +132,10 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
   const centerX = 50 // percent
   const centerY = 38 // percent - positioned at Julia's chest level
   
-  // Create wedge clip path from center
-  const createWedgePath = (startAngle, endAngle) => {
+  // Create wedge clip path from center with variable radius for animation
+  const createWedgePath = (startAngle, endAngle, radius = 120) => {
     const startRad = (startAngle * Math.PI) / 180
     const endRad = (endAngle * Math.PI) / 180
-    const radius = 120 // extend outward
     
     const x1 = 50 + radius * Math.cos(startRad)
     const y1 = 50 + radius * Math.sin(startRad)
@@ -165,6 +164,19 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
     { start: 15 - 2*wedgeAngle - gapAngle, end: 15 - wedgeAngle - gapAngle, shade: 0.4 },
     { start: 15 - 3*wedgeAngle - 2*gapAngle, end: 15 - 2*wedgeAngle - 2*gapAngle, shade: 0.35 },
   ]
+  
+  // Calculate clockwise animation order for wedges
+  // Order: right wedges top-to-bottom, then left wedges bottom-to-top
+  const getClockwiseDelay = (side, index, totalPerSide) => {
+    const baseDelay = 0.12 // seconds between each wedge
+    if (side === 'right') {
+      // Right side: start from top (index 2) going down to (index 0)
+      return (totalPerSide - 1 - index) * baseDelay
+    } else {
+      // Left side: continue after right, from bottom (index 2) to top (index 0)
+      return (totalPerSide + (totalPerSide - 1 - index)) * baseDelay
+    }
+  }
 
   // Get label position within wedge - balanced distance
   const getLabelPosition = (startAngle, endAngle, distance = 0.32) => {
@@ -278,14 +290,28 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
         const med = medications[i]
         const pos = getLabelPosition(wedge.start, wedge.end)
         const value = med?.value ? (interpolate ? interpolate(med.value.toString()) : med.value) : null
+        const clockwiseDelay = getClockwiseDelay('left', i, leftWedges.length)
         
         return (
           <motion.div
             key={`left-${i}`}
             className="absolute inset-0"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
+            initial={{ 
+              opacity: 0,
+              clipPath: createWedgePath(wedge.start, wedge.end, 0)
+            }}
+            animate={shouldAnimate ? { 
+              opacity: 1,
+              clipPath: createWedgePath(wedge.start, wedge.end, 120)
+            } : { 
+              opacity: 0,
+              clipPath: createWedgePath(wedge.start, wedge.end, 0)
+            }}
+            transition={{ 
+              delay: clockwiseDelay, 
+              duration: 0.6, 
+              ease: [0.22, 1, 0.36, 1] // smooth ease-out
+            }}
           >
             {/* Wedge panel - lower opacity */}
             <div
@@ -413,6 +439,7 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
         const lab = labs[i]
         const pos = getLabelPosition(wedge.start, wedge.end)
         const value = lab?.value ? (interpolate ? interpolate(lab.value.toString()) : lab.value) : null
+        const clockwiseDelay = getClockwiseDelay('right', i, rightWedges.length)
         
         // Determine status
         let status = 'default'
@@ -444,9 +471,22 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
           <motion.div
             key={`right-${i}`}
             className="absolute inset-0"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1, duration: 0.5 }}
+            initial={{ 
+              opacity: 0,
+              clipPath: createWedgePath(wedge.start, wedge.end, 0)
+            }}
+            animate={shouldAnimate ? { 
+              opacity: 1,
+              clipPath: createWedgePath(wedge.start, wedge.end, 120)
+            } : { 
+              opacity: 0,
+              clipPath: createWedgePath(wedge.start, wedge.end, 0)
+            }}
+            transition={{ 
+              delay: clockwiseDelay, 
+              duration: 0.6, 
+              ease: [0.22, 1, 0.36, 1] // smooth ease-out
+            }}
           >
             {/* Wedge panel - lower opacity */}
             <div

@@ -4,11 +4,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export function PatientCenter({ patient, isActive, dropEffect, onDrop }) {
+export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranceComplete }) {
   const [showControls, setShowControls] = useState(false)
   const video1Ref = useRef(null)
   const video2Ref = useRef(null)
   const [showSecondVideo, setShowSecondVideo] = useState(false)
+  const [hasEntered, setHasEntered] = useState(false)
   
   // When intro ends, fade to video 2 and ensure it's playing
   useEffect(() => {
@@ -365,8 +366,14 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop }) {
           animate={{ opacity: 1, scale: settings.scale }}
           whileHover={{ scale: settings.scale * 1.02 }}
           whileTap={{ scale: settings.scale * 0.98 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           onClick={onDrop}
+          onAnimationComplete={() => {
+            if (!hasEntered) {
+              setHasEntered(true)
+              onEntranceComplete?.()
+            }
+          }}
           style={{
             width: `${settings.width}px`,
             height: `${settings.height}px`,

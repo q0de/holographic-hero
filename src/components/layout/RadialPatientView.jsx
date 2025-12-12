@@ -1,6 +1,7 @@
 // RadialPatientView.jsx
 // Core layout component - patient at center with fanning info panels
 
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import BackgroundGrid from '../effects/BackgroundGrid'
 import FanPanels from '../effects/FanPanels'
@@ -19,17 +20,25 @@ export function RadialPatientView({
   memoryDeltas = {},
   children // Decision cards slot
 }) {
+  // Track when patient has finished entrance animation
+  const [patientEntered, setPatientEntered] = useState(false)
+  
+  const handlePatientEntranceComplete = useCallback(() => {
+    setPatientEntered(true)
+  }, [])
+
   return (
     <div className="radial-container relative">
       {/* Background grid pattern */}
       <BackgroundGrid />
       
-      {/* Fan panels with meds/labs info */}
+      {/* Fan panels with meds/labs info - waits for patient entrance */}
       <FanPanels 
         medications={medications}
         labs={labs}
         interpolate={interpolate}
         memoryDeltas={memoryDeltas}
+        shouldAnimate={patientEntered}
       />
       
       {/* Top bar - Symptoms */}
@@ -43,6 +52,7 @@ export function RadialPatientView({
         isActive={isDropZoneActive}
         dropEffect={dropEffect}
         onDrop={onDrop}
+        onEntranceComplete={handlePatientEntranceComplete}
       />
       
       {/* Bottom - Decision cards (passed as children) */}
