@@ -1,21 +1,22 @@
 // BackgroundGrid.jsx
 // Deep layered background with depth effects
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
+import { useTheme } from '../../context/ThemeContext'
 
 // Floating particle component - MORE VISIBLE
-function FloatingParticles({ count = 20 }) {
-  const particles = Array.from({ length: count }, (_, i) => ({
+function FloatingParticles({ count = 20, primaryRgb }) {
+  const particles = useMemo(() => Array.from({ length: count }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: 2 + Math.random() * 4, // Bigger particles
+    size: 2 + Math.random() * 4,
     duration: 12 + Math.random() * 15,
     delay: Math.random() * 8,
-    opacity: 0.4 + Math.random() * 0.5 // Higher opacity
-  }))
+    opacity: 0.4 + Math.random() * 0.5
+  })), [count])
   
   return (
     <div className="absolute inset-0 overflow-hidden">
@@ -27,8 +28,8 @@ function FloatingParticles({ count = 20 }) {
             left: `${p.x}%`,
             width: p.size,
             height: p.size,
-            background: `rgba(14, 165, 233, ${p.opacity})`,
-            boxShadow: `0 0 ${p.size * 4}px rgba(14, 165, 233, ${p.opacity * 0.8})`
+            background: `rgba(${primaryRgb}, ${p.opacity})`,
+            boxShadow: `0 0 ${p.size * 4}px rgba(${primaryRgb}, ${p.opacity * 0.8})`
           }}
           animate={{
             y: ['-10%', '110%'],
@@ -47,6 +48,7 @@ function FloatingParticles({ count = 20 }) {
 }
 
 export function BackgroundGrid() {
+  const { theme } = useTheme()
   const [showControls, setShowControls] = useState(false)
   const [effects, setEffects] = useState({
     particles: true,
@@ -66,6 +68,10 @@ export function BackgroundGrid() {
     setDevControlsContainer(document.getElementById('dev-controls'))
   }, [])
   
+  // Theme-based color
+  const c = theme.primaryRgb
+  const c2 = theme.secondaryRgb
+  
   return (
     <>
       {/* Effects Control Panel - rendered outside phone frame */}
@@ -77,7 +83,7 @@ export function BackgroundGrid() {
             aria-label="Effects settings"
             title="Effects"
           >
-            🎨
+            ✨
           </button>
           
           {showControls && (
@@ -124,16 +130,16 @@ export function BackgroundGrid() {
             backgroundImage: `
               radial-gradient(1px 1px at 20% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
               radial-gradient(1px 1px at 80% 25%, rgba(255,255,255,0.6) 0%, transparent 100%),
-              radial-gradient(1.5px 1.5px at 35% 8%, rgba(14, 165, 233, 0.8) 0%, transparent 100%),
+              radial-gradient(1.5px 1.5px at 35% 8%, rgba(${c}, 0.8) 0%, transparent 100%),
               radial-gradient(1px 1px at 65% 12%, rgba(255,255,255,0.5) 0%, transparent 100%),
               radial-gradient(1px 1px at 10% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
-              radial-gradient(1.5px 1.5px at 90% 18%, rgba(14, 165, 233, 0.6) 0%, transparent 100%)
+              radial-gradient(1.5px 1.5px at 90% 18%, rgba(${c}, 0.6) 0%, transparent 100%)
             `
           }}
         />
         
         {/* Floating Particles - MORE VISIBLE */}
-        {effects.particles && <FloatingParticles count={30} />}
+        {effects.particles && <FloatingParticles count={30} primaryRgb={c} />}
         
         {/* Animated Ambient Glow - STRONGER */}
         {effects.ambientGlow && (
@@ -149,9 +155,9 @@ export function BackgroundGrid() {
             }}
             style={{
               background: `
-                radial-gradient(circle at 20% 25%, rgba(14, 165, 233, 0.25) 0%, transparent 35%),
-                radial-gradient(circle at 80% 35%, rgba(99, 102, 241, 0.2) 0%, transparent 30%),
-                radial-gradient(circle at 50% 75%, rgba(14, 165, 233, 0.15) 0%, transparent 40%)
+                radial-gradient(circle at 20% 25%, rgba(${c}, 0.25) 0%, transparent 35%),
+                radial-gradient(circle at 80% 35%, rgba(${c2}, 0.2) 0%, transparent 30%),
+                radial-gradient(circle at 50% 75%, rgba(${c}, 0.15) 0%, transparent 40%)
               `
             }}
           />
@@ -163,7 +169,7 @@ export function BackgroundGrid() {
             <div 
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(0deg, rgba(14, 165, 233, 0.15) 0%, transparent 40%)'
+                background: `linear-gradient(0deg, rgba(${c}, 0.15) 0%, transparent 40%)`
               }}
             />
             <motion.div 
@@ -171,7 +177,7 @@ export function BackgroundGrid() {
               animate={{ x: ['-5%', '5%', '-5%'] }}
               transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
               style={{
-                background: 'radial-gradient(ellipse 100% 40% at 50% 90%, rgba(100, 150, 200, 0.25) 0%, transparent 70%)'
+                background: `radial-gradient(ellipse 100% 40% at 50% 90%, rgba(${c}, 0.2) 0%, transparent 70%)`
               }}
             />
           </>
@@ -185,7 +191,7 @@ export function BackgroundGrid() {
             transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
             style={{
               background: `
-                linear-gradient(170deg, transparent 35%, rgba(14, 165, 233, 0.4) 50%, transparent 65%),
+                linear-gradient(170deg, transparent 35%, rgba(${c}, 0.4) 50%, transparent 65%),
                 linear-gradient(190deg, transparent 40%, rgba(255, 255, 255, 0.2) 50%, transparent 60%)
               `,
               transformOrigin: '50% 40%'
@@ -198,8 +204,8 @@ export function BackgroundGrid() {
           className="absolute inset-0"
           style={{
             background: `
-              radial-gradient(ellipse 60% 40% at 50% 40%, rgba(14, 165, 233, 0.12) 0%, transparent 60%),
-              radial-gradient(ellipse 40% 30% at 50% 45%, rgba(30, 64, 100, 0.2) 0%, transparent 50%)
+              radial-gradient(ellipse 60% 40% at 50% 40%, rgba(${c}, 0.12) 0%, transparent 60%),
+              radial-gradient(ellipse 40% 30% at 50% 45%, rgba(${c2}, 0.15) 0%, transparent 50%)
             `
           }}
         />
@@ -222,8 +228,8 @@ export function BackgroundGrid() {
           className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(14, 165, 233, 0.4) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(14, 165, 233, 0.4) 1px, transparent 1px)
+              linear-gradient(rgba(${c}, 0.4) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(${c}, 0.4) 1px, transparent 1px)
             `,
             backgroundSize: '32px 32px',
             maskImage: 'radial-gradient(ellipse at 50% 50%, black 20%, transparent 70%)',

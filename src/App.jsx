@@ -1,7 +1,59 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { GameProvider, useGame } from './context/GameContext'
+import { ThemeProvider, useTheme, themes } from './context/ThemeContext'
 import GameScreen from './components/GameScreen'
+
+// Theme Switcher Control
+function ThemeSwitcher() {
+  const { currentTheme, setCurrentTheme, themes: themeList } = useTheme()
+  const [showPanel, setShowPanel] = useState(false)
+  const [container, setContainer] = useState(null)
+  
+  useEffect(() => {
+    setContainer(document.getElementById('dev-controls'))
+  }, [])
+  
+  if (!container) return null
+  
+  return createPortal(
+    <div className="relative">
+      <button
+        onClick={() => setShowPanel(!showPanel)}
+        className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
+        title="Color Theme"
+      >
+        🎨
+      </button>
+      
+      {showPanel && (
+        <div 
+          className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl"
+          style={{ width: '140px' }}
+        >
+          <div className="text-slate-300 font-bold mb-2">Color Theme</div>
+          
+          {Object.entries(themeList).map(([key, t]) => (
+            <button
+              key={key}
+              onClick={() => setCurrentTheme(key)}
+              className={`w-full text-left px-2 py-1.5 rounded flex items-center gap-2 transition-colors ${
+                currentTheme === key 
+                  ? 'bg-white/20 text-white' 
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+              }`}
+            >
+              <span>{t.emoji}</span>
+              <span>{t.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>,
+    container
+  )
+}
 
 // Edge glow effects - red for symptoms, cyan for actions
 function EdgeGlowEffects() {
@@ -74,13 +126,18 @@ function EdgeGlowEffects() {
   )
 }
 
-function App() {
+function AppContent() {
+  const { theme } = useTheme()
+  
   return (
     <div className="flex items-center justify-center min-h-screen gap-4">
       {/* Dev Controls Panel - outside phone frame */}
       <div id="dev-controls" className="fixed left-4 top-4 z-[9999] flex flex-col gap-2">
         {/* Controls will be portaled here from child components */}
       </div>
+      
+      {/* Theme Switcher */}
+      <ThemeSwitcher />
       
       <div className="phone-frame">
         <div className="phone-screen">
@@ -93,6 +150,14 @@ function App() {
         </div>
       </div>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 
