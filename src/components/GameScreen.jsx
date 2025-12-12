@@ -33,6 +33,8 @@ export function GameScreen() {
     showKnowledgeCheck,
     currentFeedback,
     pendingDuration,
+    memoryDeltas,
+    showDeltas,
     interpolate,
     makeDecision,
     handleFeedbackContinue,
@@ -145,6 +147,7 @@ export function GameScreen() {
           dropEffect={dropEffect}
           onDrop={() => {}}
           interpolate={interpolate}
+          memoryDeltas={showDeltas ? memoryDeltas : {}}
         >
           {/* Decision cards */}
           <DecisionGrid

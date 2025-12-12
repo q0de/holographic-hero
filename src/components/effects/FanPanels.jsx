@@ -4,10 +4,43 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export function FanPanels({ medications = [], labs = [], interpolate }) {
+// Floating delta indicator that animates up/down
+function FloatingDeltaIndicator({ delta, isLab }) {
+  if (!delta || delta === 0) return null
+  
+  const isPositive = delta > 0
+  // For labs, lower is usually better (improvement = negative delta)
+  const isImprovement = isLab ? delta < 0 : delta > 0
+  const color = isImprovement ? '#22c55e' : '#ef4444'
+  const formattedDelta = (isPositive ? '+' : '') + delta.toFixed(1).replace(/\.0$/, '')
+  
+  return (
+    <motion.div
+      className="absolute left-1/2 -translate-x-1/2 font-bold text-base pointer-events-none z-20 whitespace-nowrap"
+      initial={{ opacity: 1, y: 0, scale: 1.2 }}
+      animate={{ 
+        opacity: 0, 
+        y: isPositive ? -28 : 28,
+        scale: 1
+      }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1.8, ease: "easeOut" }}
+      style={{
+        color,
+        textShadow: `0 0 12px ${color}, 0 0 24px ${color}`,
+        top: '-20px',
+      }}
+    >
+      {formattedDelta}
+    </motion.div>
+  )
+}
+
+export function FanPanels({ medications = [], labs = [], interpolate, memoryDeltas = {} }) {
   // Track previous values for change animation
   const prevValuesRef = useRef({})
   const [valueChanges, setValueChanges] = useState({}) // { key: 'up' | 'down' | null }
+  const [floatingDeltas, setFloatingDeltas] = useState({}) // { key: number } - actual delta values
   
   // Detect value changes and trigger animations
   useEffect(() => {
@@ -48,6 +81,41 @@ export function FanPanels({ medications = [], labs = [], interpolate }) {
       return () => clearTimeout(timer)
     }
   }, [medications, labs, interpolate])
+  
+  // Process explicit memoryDeltas from game state for floating indicators
+  useEffect(() => {
+    if (Object.keys(memoryDeltas).length > 0) {
+      // Map memoryDeltas keys (Lab_1, Medication_1, etc.) to display indices
+      const newFloatingDeltas = {}
+      
+      // Check labs - their value contains template like "[Lab_1]"
+      labs.forEach((lab, i) => {
+        if (lab?.value) {
+          const match = lab.value.match(/\[(\w+)\]/)
+          if (match && memoryDeltas[match[1]] !== undefined) {
+            newFloatingDeltas[`lab_${i}`] = memoryDeltas[match[1]]
+          }
+        }
+      })
+      
+      // Check medications
+      medications.forEach((med, i) => {
+        if (med?.value) {
+          const match = med.value.match(/\[(\w+)\]/)
+          if (match && memoryDeltas[match[1]] !== undefined) {
+            newFloatingDeltas[`med_${i}`] = memoryDeltas[match[1]]
+          }
+        }
+      })
+      
+      if (Object.keys(newFloatingDeltas).length > 0) {
+        setFloatingDeltas(newFloatingDeltas)
+        // Clear after animation
+        const timer = setTimeout(() => setFloatingDeltas({}), 2000)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [memoryDeltas, labs, medications])
   const [showControls, setShowControls] = useState(false)
   const [blurSettings, setBlurSettings] = useState({
     enabled: true,
@@ -293,7 +361,17 @@ export function FanPanels({ medications = [], labs = [], interpolate }) {
                   {med.shortName || med.name?.split(' ')[0]}
                 </div>
                 <div className="relative">
-                  {/* Change indicator */}
+                  {/* Floating delta indicator */}
+                  <AnimatePresence>
+                    {floatingDeltas[`med_${i}`] && (
+                      <FloatingDeltaIndicator 
+                        key={`delta-med-${i}`}
+                        delta={floatingDeltas[`med_${i}`]} 
+                        isLab={false} 
+                      />
+                    )}
+                  </AnimatePresence>
+                  {/* Change indicator arrow */}
                   <AnimatePresence>
                     {valueChanges[`med_${i}`] && (
                       <motion.div
@@ -314,9 +392,9 @@ export function FanPanels({ medications = [], labs = [], interpolate }) {
                   <motion.div 
                     className="text-base font-bold text-white leading-tight" 
                     style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
-                    animate={valueChanges[`med_${i}`] ? {
+                    animate={(valueChanges[`med_${i}`] || floatingDeltas[`med_${i}`]) ? {
                       scale: [1, 1.2, 1],
-                      color: valueChanges[`med_${i}`] === 'up' ? ['#ffffff', '#22c55e', '#ffffff'] : ['#ffffff', '#ef4444', '#ffffff']
+                      color: (valueChanges[`med_${i}`] === 'up' || floatingDeltas[`med_${i}`] > 0) ? ['#ffffff', '#22c55e', '#ffffff'] : ['#ffffff', '#ef4444', '#ffffff']
                     } : {}}
                     transition={{ duration: 0.6 }}
                   >
@@ -452,7 +530,17 @@ export function FanPanels({ medications = [], labs = [], interpolate }) {
                   </span>
                 </div>
                 <div className="relative">
-                  {/* Change indicator */}
+                  {/* Floating delta indicator */}
+                  <AnimatePresence>
+                    {floatingDeltas[`lab_${i}`] && (
+                      <FloatingDeltaIndicator 
+                        key={`delta-lab-${i}`}
+                        delta={floatingDeltas[`lab_${i}`]} 
+                        isLab={true} 
+                      />
+                    )}
+                  </AnimatePresence>
+                  {/* Change indicator arrow */}
                   <AnimatePresence>
                     {valueChanges[`lab_${i}`] && (
                       <motion.div
@@ -473,9 +561,9 @@ export function FanPanels({ medications = [], labs = [], interpolate }) {
                   <motion.div 
                     className={`text-base font-bold ${textColor} leading-tight`} 
                     style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
-                    animate={valueChanges[`lab_${i}`] ? {
+                    animate={(valueChanges[`lab_${i}`] || floatingDeltas[`lab_${i}`]) ? {
                       scale: [1, 1.2, 1],
-                      color: valueChanges[`lab_${i}`] === 'up' ? ['currentColor', '#ef4444', 'currentColor'] : ['currentColor', '#22c55e', 'currentColor']
+                      color: (valueChanges[`lab_${i}`] === 'up' || floatingDeltas[`lab_${i}`] > 0) ? ['currentColor', '#ef4444', 'currentColor'] : ['currentColor', '#22c55e', 'currentColor']
                     } : {}}
                     transition={{ duration: 0.6 }}
                   >

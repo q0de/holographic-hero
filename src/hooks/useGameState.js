@@ -32,6 +32,11 @@ export function useGameState() {
   const [currentFeedback, setCurrentFeedback] = useState(null)
   const [pendingDuration, setPendingDuration] = useState(0)
   
+  // Delta animation state - tracks changes to show floating indicators
+  const [previousMemory, setPreviousMemory] = useState(null)
+  const [memoryDeltas, setMemoryDeltas] = useState({}) // { Lab_1: -5, Lab_2: 2, etc }
+  const [showDeltas, setShowDeltas] = useState(false)
+  
   // Get current scenario
   const currentScenario = getScenarioById(currentScenarioId)
   
@@ -97,6 +102,9 @@ export function useGameState() {
     
     const option = scenario.options[optionKey]
     
+    // Save previous memory state before applying updates (for delta animations)
+    setPreviousMemory({ ...memory })
+    
     // Apply memory updates
     if (option.memoryUpdates) {
       option.memoryUpdates.forEach(({ key, operation, value }) => {
@@ -127,7 +135,7 @@ export function useGameState() {
     // Show feedback modal
     setShowFeedback(true)
     
-  }, [currentScenarioId, currentWeek, currentDosage, updateMemory])
+  }, [currentScenarioId, currentWeek, currentDosage, updateMemory, memory])
   
   // Handle feedback continue
   const handleFeedbackContinue = useCallback(() => {
@@ -138,6 +146,28 @@ export function useGameState() {
   // Handle time passage complete
   const handleTimePassageComplete = useCallback(() => {
     setShowTimePassage(false)
+    
+    // Calculate deltas for animation (compare previous memory to current)
+    if (previousMemory) {
+      const deltas = {}
+      Object.keys(memory).forEach(key => {
+        const prev = previousMemory[key]
+        const curr = memory[key]
+        if (typeof prev === 'number' && typeof curr === 'number' && prev !== curr) {
+          deltas[key] = curr - prev
+        }
+      })
+      if (Object.keys(deltas).length > 0) {
+        setMemoryDeltas(deltas)
+        setShowDeltas(true)
+        // Clear deltas after animation completes
+        setTimeout(() => {
+          setShowDeltas(false)
+          setMemoryDeltas({})
+        }, 2000)
+      }
+      setPreviousMemory(null)
+    }
     
     // Update week
     const newWeek = currentWeek + pendingDuration
@@ -163,7 +193,7 @@ export function useGameState() {
     
     setCurrentFeedback(null)
     setPendingDuration(0)
-  }, [currentWeek, pendingDuration, currentDosage, currentScenarioId, currentFeedback])
+  }, [currentWeek, pendingDuration, currentDosage, currentScenarioId, currentFeedback, previousMemory, memory])
   
   // Handle knowledge check complete
   const handleKnowledgeCheckComplete = useCallback(() => {
@@ -196,6 +226,9 @@ export function useGameState() {
     setShowFeedback(false)
     setShowTimePassage(false)
     setShowKnowledgeCheck(false)
+    setPreviousMemory(null)
+    setMemoryDeltas({})
+    setShowDeltas(false)
   }, [])
   
   return {
@@ -219,6 +252,10 @@ export function useGameState() {
     showKnowledgeCheck,
     currentFeedback,
     pendingDuration,
+    
+    // Delta animation state
+    memoryDeltas,
+    showDeltas,
     
     // Functions
     interpolate,

@@ -16,6 +16,7 @@ export function RadialPatientView({
   dropEffect,
   onDrop,
   interpolate,
+  memoryDeltas = {},
   children // Decision cards slot
 }) {
   return (
@@ -28,6 +29,7 @@ export function RadialPatientView({
         medications={medications}
         labs={labs}
         interpolate={interpolate}
+        memoryDeltas={memoryDeltas}
       />
       
       {/* Top bar - Symptoms */}

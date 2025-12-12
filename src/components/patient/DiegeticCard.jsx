@@ -1,7 +1,7 @@
 // DiegeticCard.jsx
 // Glassmorphic info card for medications and lab values
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // Helper: Get lab status from value + ranges
 function getLabStatus(value, ranges) {
@@ -17,7 +17,41 @@ function getLabStatus(value, ranges) {
   return 'default'
 }
 
-export function DiegeticCard({ type, data, delay = 0, interpolate, compact = false }) {
+// Floating delta indicator component
+function FloatingDelta({ delta, isLab }) {
+  if (!delta || delta === 0) return null
+  
+  const isPositive = delta > 0
+  // For labs, lower is usually better (improvement = negative delta)
+  // For meds, we just show the change direction
+  const isImprovement = isLab ? delta < 0 : false
+  
+  const color = isImprovement ? '#22c55e' : isPositive ? '#ef4444' : '#22c55e'
+  const formattedDelta = isPositive ? `+${delta.toFixed(1)}` : delta.toFixed(1)
+  
+  return (
+    <motion.div
+      className="absolute left-1/2 -translate-x-1/2 font-bold text-sm pointer-events-none z-10"
+      initial={{ opacity: 1, y: 0 }}
+      animate={{ 
+        opacity: 0, 
+        y: isPositive ? -24 : 24 
+      }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1.5, ease: "easeOut" }}
+      style={{
+        color,
+        textShadow: `0 0 10px ${color}, 0 0 20px ${color}`,
+        top: isPositive ? '-8px' : 'auto',
+        bottom: isPositive ? 'auto' : '-8px',
+      }}
+    >
+      {formattedDelta}
+    </motion.div>
+  )
+}
+
+export function DiegeticCard({ type, data, delay = 0, interpolate, compact = false, delta = null }) {
   const isLab = type === 'lab'
   
   // Interpolate the value if it contains memory keys
@@ -56,6 +90,7 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
   if (compact) {
     return (
       <motion.div
+        className="relative"
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
@@ -71,6 +106,11 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
           boxShadow: `0 0 15px ${glowColors[status]}`
         }}
       >
+        {/* Floating delta indicator */}
+        <AnimatePresence>
+          {delta && <FloatingDelta key="delta" delta={delta} isLab={isLab} />}
+        </AnimatePresence>
+        
         {/* Label */}
         <div className="text-[8px] uppercase tracking-wider text-slate-500 truncate flex items-center gap-1">
           {!isLab && <span>{data.icon || '💊'}</span>}
@@ -111,6 +151,7 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
   // Standard mode
   return (
     <motion.div
+      className="relative"
       initial={{ opacity: 0, scale: 0.8, x: isLab ? 20 : -20 }}
       animate={{ opacity: 1, scale: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.8, x: isLab ? 20 : -20 }}
@@ -129,6 +170,11 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
         `
       }}
     >
+      {/* Floating delta indicator */}
+      <AnimatePresence>
+        {delta && <FloatingDelta key="delta" delta={delta} isLab={isLab} />}
+      </AnimatePresence>
+      
       {/* Icon and Label */}
       <div className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 truncate">
         {!isLab && <span className="mr-1">{data.icon || '💊'}</span>}
