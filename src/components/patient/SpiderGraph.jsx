@@ -63,9 +63,9 @@ export function SpiderGraph({
 
   const numPoints = dataPoints.length
   const angleStep = (2 * Math.PI) / numPoints
-  const centerX = 150
-  const centerY = 150
-  const maxRadius = 100
+  const centerX = 200
+  const centerY = 200
+  const maxRadius = 140
 
   // Calculate polygon points for the data
   const getPoint = (index, value, max) => {
@@ -132,7 +132,7 @@ export function SpiderGraph({
             </motion.div>
 
             {/* SVG Spider Graph */}
-            <svg width="300" height="300" viewBox="0 0 300 300">
+            <svg width="400" height="400" viewBox="0 0 400 400">
               {/* Glow filter */}
               <defs>
                 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -210,7 +210,7 @@ export function SpiderGraph({
                     key={`point-${i}`}
                     cx={x}
                     cy={y}
-                    r="5"
+                    r="7"
                     fill={point.color}
                     stroke="white"
                     strokeWidth="2"
@@ -228,7 +228,7 @@ export function SpiderGraph({
               {/* Labels */}
               {dataPoints.map((point, i) => {
                 const angle = (i * angleStep) - Math.PI / 2
-                const labelRadius = maxRadius + 30
+                const labelRadius = maxRadius + 40
                 const x = centerX + labelRadius * Math.cos(angle)
                 const y = centerY + labelRadius * Math.sin(angle)
                 
@@ -241,10 +241,10 @@ export function SpiderGraph({
                   >
                     <text
                       x={x}
-                      y={y - 6}
+                      y={y - 8}
                       textAnchor="middle"
                       fill={point.color}
-                      fontSize="10"
+                      fontSize="12"
                       fontWeight="bold"
                       className="uppercase"
                     >
@@ -252,10 +252,10 @@ export function SpiderGraph({
                     </text>
                     <text
                       x={x}
-                      y={y + 6}
+                      y={y + 10}
                       textAnchor="middle"
                       fill="white"
-                      fontSize="11"
+                      fontSize="14"
                       fontWeight="bold"
                     >
                       {point.value}{point.unit ? ` ${point.unit}` : ''}
@@ -268,7 +268,7 @@ export function SpiderGraph({
               <circle
                 cx={centerX}
                 cy={centerY}
-                r="4"
+                r="6"
                 fill="#0ea5e9"
                 opacity="0.6"
                 filter="url(#glow)"
