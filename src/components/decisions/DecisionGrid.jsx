@@ -1,7 +1,7 @@
 // DecisionGrid.jsx
 // 2x2 grid layout for decision cards with dealt-in animation
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import DecisionCard, { getWatermarkSettings, setWatermarkSettings } from './DecisionCard'
@@ -48,10 +48,13 @@ export function DecisionGrid({
     setWatermarkSettings(newSettings)
   }
   
+  // Get portal container after mount
+  const [devControlsContainer, setDevControlsContainer] = useState(null)
+  useEffect(() => {
+    setDevControlsContainer(document.getElementById('dev-controls'))
+  }, [])
+  
   if (optionEntries.length === 0) return null
-
-  // Render controls outside phone frame via portal
-  const devControlsContainer = document.getElementById('dev-controls')
   
   return (
     <div className="space-y-2 relative">

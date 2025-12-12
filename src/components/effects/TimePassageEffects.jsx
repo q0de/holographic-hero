@@ -438,6 +438,11 @@ export function TimePassageEffects({
 // Control panel for testing effects
 export function TimeEffectsControl({ currentEffect, onEffectChange }) {
   const [showPanel, setShowPanel] = useState(false)
+  const [devControlsContainer, setDevControlsContainer] = useState(null)
+  
+  useEffect(() => {
+    setDevControlsContainer(document.getElementById('dev-controls'))
+  }, [])
   
   const effects = [
     { id: 'particles', name: 'Particles', icon: '✨' },
@@ -445,9 +450,6 @@ export function TimeEffectsControl({ currentEffect, onEffectChange }) {
     { id: 'timeline', name: 'Timeline', icon: '📅' },
     { id: 'vhs', name: 'VHS', icon: '📼' },
   ]
-  
-  // Render controls outside phone frame via portal
-  const devControlsContainer = document.getElementById('dev-controls')
   
   if (!devControlsContainer) return null
   

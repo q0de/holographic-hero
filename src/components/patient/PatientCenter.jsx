@@ -93,8 +93,11 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranc
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
-  // Render controls outside phone frame via portal
-  const devControlsContainer = document.getElementById('dev-controls')
+  // Get portal container after mount
+  const [devControlsContainer, setDevControlsContainer] = useState(null)
+  useEffect(() => {
+    setDevControlsContainer(document.getElementById('dev-controls'))
+  }, [])
   
   return (
     <>
