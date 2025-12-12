@@ -208,6 +208,8 @@ export function GameScreen() {
         medications={currentScenario?.medications || []}
         patient={gameConfig.patient}
         currentWeek={currentWeek}
+        interpolate={interpolate}
+        memory={memory}
       />
 
       {/* Knowledge Check - renders inside game container */}

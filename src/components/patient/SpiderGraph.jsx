@@ -9,24 +9,51 @@ export function SpiderGraph({
   labs = [], 
   medications = [],
   patient,
-  currentWeek = 0
+  currentWeek = 0,
+  interpolate,
+  memory = {}
 }) {
+  // Helper to get interpolated value
+  const getValue = (template) => {
+    if (!template) return 0
+    if (interpolate) {
+      const interpolated = interpolate(template.toString())
+      return parseFloat(interpolated) || 0
+    }
+    return parseFloat(template) || 0
+  }
+  
+  // Get color based on value and ranges
+  const getValueColor = (value, ranges) => {
+    if (!ranges) return '#64748b'
+    if (ranges.danger && value >= ranges.danger[0]) return '#ef4444'
+    if (ranges.elevated && value >= ranges.elevated[0]) return '#f59e0b'
+    if (ranges.normal && value >= ranges.normal[0] && value <= ranges.normal[1]) return '#22c55e'
+    return '#64748b'
+  }
+  
   // Combine data points for the spider graph
   const dataPoints = [
-    ...labs.map(lab => ({
-      label: lab.shortName || lab.name,
-      value: parseFloat(lab.value) || 0,
-      max: lab.ranges?.danger?.[0] * 1.2 || 100,
-      color: getLabColor(lab),
-      unit: lab.unit
-    })),
-    ...medications.slice(0, 2).map(med => ({
-      label: med.shortName || med.name?.split(' ')[0],
-      value: parseFloat(med.value) || 0,
-      max: 20,
-      color: '#0ea5e9',
-      unit: med.unit
-    }))
+    ...labs.map(lab => {
+      const value = getValue(lab.value)
+      return {
+        label: lab.shortName || lab.name,
+        value: value,
+        max: lab.ranges?.danger?.[0] * 1.5 || 300,
+        color: getValueColor(value, lab.ranges),
+        unit: lab.unit
+      }
+    }),
+    ...medications.slice(0, 3).map(med => {
+      const value = getValue(med.value)
+      return {
+        label: med.shortName || med.name?.split(' ')[0],
+        value: value,
+        max: 15,
+        color: '#0ea5e9',
+        unit: med.unit
+      }
+    })
   ].slice(0, 6) // Max 6 points for the spider
 
   // Fill with placeholder if less than 3 points
@@ -262,21 +289,6 @@ export function SpiderGraph({
       )}
     </AnimatePresence>
   )
-}
-
-// Helper to get color based on lab status
-function getLabColor(lab) {
-  const value = parseFloat(lab.value)
-  if (!lab.ranges) return '#64748b'
-  
-  if (lab.ranges.danger && value >= lab.ranges.danger[0]) {
-    return '#ef4444' // Red
-  } else if (lab.ranges.elevated && value >= lab.ranges.elevated[0]) {
-    return '#f59e0b' // Amber
-  } else if (lab.ranges.normal && value >= lab.ranges.normal[0] && value <= lab.ranges.normal[1]) {
-    return '#22c55e' // Green
-  }
-  return '#64748b' // Default gray
 }
 
 export default SpiderGraph
