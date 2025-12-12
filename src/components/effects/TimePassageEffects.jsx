@@ -2,6 +2,7 @@
 // Alternative time passage visualizations
 
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // Effect 1: Particle Flow - particles flow from card position to Julia
@@ -445,31 +446,37 @@ export function TimeEffectsControl({ currentEffect, onEffectChange }) {
     { id: 'vhs', name: 'VHS', icon: '📼' },
   ]
   
-  return (
-    <>
+  // Render controls outside phone frame via portal
+  const devControlsContainer = document.getElementById('dev-controls')
+  
+  if (!devControlsContainer) return null
+  
+  return createPortal(
+    <div className="relative">
       <button
         onClick={() => setShowPanel(!showPanel)}
-        className="absolute top-16 left-10 z-50 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-slate-400 hover:text-white transition-colors pointer-events-auto"
+        className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
         aria-label="Time effect settings"
+        title="Time Effect"
       >
         ⏱️
       </button>
       
       {showPanel && (
         <div 
-          className="absolute top-24 left-8 z-50 bg-black/95 rounded-lg p-2 text-[10px] text-white space-y-1 pointer-events-auto"
-          style={{ width: '110px' }}
+          className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl"
+          style={{ width: '130px' }}
         >
-          <div className="text-purple-400 font-bold mb-1">Time Effect</div>
+          <div className="text-purple-400 font-bold mb-2">Time Effect</div>
           
           {effects.map(effect => (
             <button
               key={effect.id}
               onClick={() => onEffectChange(effect.id)}
-              className={`w-full text-left px-2 py-1 rounded flex items-center gap-2 ${
+              className={`w-full text-left px-2 py-1.5 rounded flex items-center gap-2 transition-colors ${
                 currentEffect === effect.id 
                   ? 'bg-purple-600 text-white' 
-                  : 'bg-slate-800 hover:bg-slate-700'
+                  : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
               }`}
             >
               <span>{effect.icon}</span>
@@ -478,7 +485,8 @@ export function TimeEffectsControl({ currentEffect, onEffectChange }) {
           ))}
         </div>
       )}
-    </>
+    </div>,
+    devControlsContainer
   )
 }
 

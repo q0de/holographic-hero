@@ -2,6 +2,7 @@
 // 2x2 grid layout for decision cards with dealt-in animation
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import DecisionCard, { getWatermarkSettings, setWatermarkSettings } from './DecisionCard'
 
@@ -49,82 +50,63 @@ export function DecisionGrid({
   
   if (optionEntries.length === 0) return null
 
+  // Render controls outside phone frame via portal
+  const devControlsContainer = document.getElementById('dev-controls')
+  
   return (
     <div className="space-y-2 relative">
-      {/* Watermark settings button */}
-      <button
-        onClick={() => setShowWatermarkControls(!showWatermarkControls)}
-        className="absolute -top-6 right-2 z-50 w-6 h-6 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-[10px] text-slate-400 hover:text-white transition-colors"
-        aria-label="Card settings"
-      >
-        💧
-      </button>
-      
-      {/* Watermark Controls Panel */}
-      {showWatermarkControls && (
-        <div 
-          className="absolute -top-4 right-10 z-[200] bg-black/95 rounded-lg p-2 text-[9px] text-white space-y-1"
-          style={{ width: '130px' }}
-        >
-          <div className="text-cyan-400 font-bold mb-1">Card Watermark</div>
-          
-          <label className="flex justify-between items-center">
-            <span>Size</span>
-            <input
-              type="range" min="40" max="150" value={watermarkSettings.size}
-              onChange={(e) => updateWatermark('size', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{watermarkSettings.size}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Opacity</span>
-            <input
-              type="range" min="0" max="50" step="1" value={watermarkSettings.opacity * 100}
-              onChange={(e) => updateWatermark('opacity', Number(e.target.value) / 100)}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{Math.round(watermarkSettings.opacity * 100)}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Rotate</span>
-            <input
-              type="range" min="-45" max="45" value={watermarkSettings.rotation}
-              onChange={(e) => updateWatermark('rotation', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{watermarkSettings.rotation}°</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>X Pos</span>
-            <input
-              type="range" min="-50" max="50" value={watermarkSettings.offsetX}
-              onChange={(e) => updateWatermark('offsetX', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{watermarkSettings.offsetX}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Y Pos</span>
-            <input
-              type="range" min="-50" max="50" value={watermarkSettings.offsetY}
-              onChange={(e) => updateWatermark('offsetY', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{watermarkSettings.offsetY}</span>
-          </label>
-          
-          <button 
-            onClick={() => console.log('Watermark:', JSON.stringify(watermarkSettings, null, 2))}
-            className="w-full bg-cyan-600 hover:bg-cyan-500 rounded px-2 py-1 mt-1"
+      {/* Card Watermark Controls - rendered outside phone frame */}
+      {devControlsContainer && createPortal(
+        <div className="relative">
+          <button
+            onClick={() => setShowWatermarkControls(!showWatermarkControls)}
+            className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
+            aria-label="Card settings"
+            title="Card Watermark"
           >
-            Log Settings
+            💧
           </button>
-        </div>
+          
+          {showWatermarkControls && (
+            <div 
+              className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl"
+              style={{ width: '160px' }}
+            >
+              <div className="text-cyan-400 font-bold mb-2">Card Watermark</div>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Size</span>
+                <input
+                  type="range" min="40" max="150" value={watermarkSettings.size}
+                  onChange={(e) => updateWatermark('size', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{watermarkSettings.size}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Opacity</span>
+                <input
+                  type="range" min="0" max="50" step="1" value={watermarkSettings.opacity * 100}
+                  onChange={(e) => updateWatermark('opacity', Number(e.target.value) / 100)}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{Math.round(watermarkSettings.opacity * 100)}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Rotate</span>
+                <input
+                  type="range" min="-45" max="45" value={watermarkSettings.rotation}
+                  onChange={(e) => updateWatermark('rotation', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{watermarkSettings.rotation}°</span>
+              </label>
+            </div>
+          )}
+        </div>,
+        devControlsContainer
       )}
       
       {/* Instruction text */}

@@ -2,6 +2,7 @@
 // Radial fan/wedge panels behind patient for displaying info
 
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 // Floating delta indicator that animates up/down
@@ -190,82 +191,83 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
     }
   }
 
+  // Render controls outside phone frame via portal
+  const devControlsContainer = document.getElementById('dev-controls')
+  
   return (
     <>
-      {/* Radial Controls Button */}
-      <button
-        onClick={() => setShowControls(!showControls)}
-        className="absolute top-16 right-10 z-50 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-slate-400 hover:text-white transition-colors pointer-events-auto"
-        aria-label="Radial settings"
-      >
-        📐
-      </button>
-      
-      {/* Radial Controls Panel */}
-      {showControls && (
-        <div 
-          className="absolute top-24 right-8 z-50 bg-black/90 rounded-lg p-2 text-[10px] text-white space-y-1 pointer-events-auto"
-          style={{ width: '130px' }}
-        >
-          <div className="text-cyan-400 font-bold mb-1">Edge Blur</div>
-          
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={blurSettings.enabled}
-              onChange={(e) => updateSetting('enabled', e.target.checked)}
-              className="w-3 h-3"
-            />
-            <span>Enabled</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Blur</span>
-            <input
-              type="range" min="0" max="20" value={blurSettings.blurAmount}
-              onChange={(e) => updateSetting('blurAmount', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{blurSettings.blurAmount}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Width</span>
-            <input
-              type="range" min="30" max="100" value={blurSettings.maskWidth}
-              onChange={(e) => updateSetting('maskWidth', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{blurSettings.maskWidth}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Height</span>
-            <input
-              type="range" min="30" max="100" value={blurSettings.maskHeight}
-              onChange={(e) => updateSetting('maskHeight', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{blurSettings.maskHeight}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Fade</span>
-            <input
-              type="range" min="0" max="80" value={blurSettings.fadeStart}
-              onChange={(e) => updateSetting('fadeStart', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-5 text-right">{blurSettings.fadeStart}</span>
-          </label>
-          
-          <button 
-            onClick={() => console.log('Blur Settings:', JSON.stringify(blurSettings, null, 2))}
-            className="w-full bg-cyan-600 hover:bg-cyan-500 rounded px-2 py-1 mt-1"
+      {/* Radial Controls - rendered outside phone frame */}
+      {devControlsContainer && createPortal(
+        <div className="relative">
+          <button
+            onClick={() => setShowControls(!showControls)}
+            className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
+            aria-label="Radial settings"
+            title="Radial/Blur"
           >
-            Log Settings
+            📐
           </button>
-        </div>
+          
+          {showControls && (
+            <div 
+              className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl"
+              style={{ width: '160px' }}
+            >
+              <div className="text-cyan-400 font-bold mb-2">Edge Blur</div>
+              
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={blurSettings.enabled}
+                  onChange={(e) => updateSetting('enabled', e.target.checked)}
+                  className="w-3 h-3 accent-cyan-500"
+                />
+                <span className="text-slate-300">Enabled</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Blur</span>
+                <input
+                  type="range" min="0" max="20" value={blurSettings.blurAmount}
+                  onChange={(e) => updateSetting('blurAmount', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-6 text-right text-cyan-300">{blurSettings.blurAmount}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Width</span>
+                <input
+                  type="range" min="30" max="100" value={blurSettings.maskWidth}
+                  onChange={(e) => updateSetting('maskWidth', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-6 text-right text-cyan-300">{blurSettings.maskWidth}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Height</span>
+                <input
+                  type="range" min="30" max="100" value={blurSettings.maskHeight}
+                  onChange={(e) => updateSetting('maskHeight', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-6 text-right text-cyan-300">{blurSettings.maskHeight}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Fade</span>
+                <input
+                  type="range" min="0" max="80" value={blurSettings.fadeStart}
+                  onChange={(e) => updateSetting('fadeStart', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-6 text-right text-cyan-300">{blurSettings.fadeStart}</span>
+              </label>
+            </div>
+          )}
+        </div>,
+        devControlsContainer
       )}
     
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-[5]">

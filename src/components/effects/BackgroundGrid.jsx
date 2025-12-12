@@ -2,6 +2,7 @@
 // Deep layered background with depth effects
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 
 // Floating particle component - MORE VISIBLE
@@ -59,43 +60,45 @@ export function BackgroundGrid() {
     setEffects(prev => ({ ...prev, [key]: !prev[key] }))
   }
   
+  // Render controls outside phone frame via portal
+  const devControlsContainer = document.getElementById('dev-controls')
+  
   return (
     <>
-      {/* Effects Control Panel */}
-      <button
-        onClick={() => setShowControls(!showControls)}
-        className="absolute top-16 left-2 z-50 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-slate-400 hover:text-white transition-colors pointer-events-auto"
-        aria-label="Effects settings"
-      >
-        🎨
-      </button>
-      
-      {showControls && (
-        <div 
-          className="absolute top-24 left-1 z-50 bg-black/90 rounded-lg p-2 text-[10px] text-white space-y-1 pointer-events-auto"
-          style={{ width: '110px' }}
-        >
-          <div className="text-purple-400 font-bold mb-1">Depth Effects</div>
-          
-          {Object.entries(effects).map(([key, value]) => (
-            <label key={key} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={value}
-                onChange={() => toggleEffect(key)}
-                className="w-3 h-3"
-              />
-              <span className="capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-            </label>
-          ))}
-          
-          <button 
-            onClick={() => console.log('Effects:', JSON.stringify(effects, null, 2))}
-            className="w-full bg-purple-600 hover:bg-purple-500 rounded px-2 py-1 mt-1"
+      {/* Effects Control Panel - rendered outside phone frame */}
+      {devControlsContainer && createPortal(
+        <div className="relative">
+          <button
+            onClick={() => setShowControls(!showControls)}
+            className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
+            aria-label="Effects settings"
+            title="Effects"
           >
-            Log Settings
+            🎨
           </button>
-        </div>
+          
+          {showControls && (
+            <div 
+              className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl"
+              style={{ width: '140px' }}
+            >
+              <div className="text-purple-400 font-bold mb-2">Depth Effects</div>
+              
+              {Object.entries(effects).map(([key, value]) => (
+                <label key={key} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={value}
+                    onChange={() => toggleEffect(key)}
+                    className="w-3 h-3 accent-purple-500"
+                  />
+                  <span className="capitalize text-slate-300">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>,
+        devControlsContainer
       )}
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">

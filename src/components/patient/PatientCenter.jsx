@@ -2,6 +2,7 @@
 // Central patient image with fade effect
 
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranceComplete }) {
@@ -92,208 +93,95 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranc
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
+  // Render controls outside phone frame via portal
+  const devControlsContainer = document.getElementById('dev-controls')
+  
   return (
     <>
-      {/* Gear button to toggle controls */}
-      <button
-        onClick={() => setShowControls(!showControls)}
-        className="absolute top-16 right-2 z-50 w-7 h-7 rounded-full bg-black/60 hover:bg-black/80 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-        aria-label="Avatar settings"
-      >
-        ⚙️
-      </button>
-
-      {/* Debug Controls Panel */}
-      {showControls && (
-        <div 
-          className="absolute top-24 right-1 z-50 bg-black/90 rounded-lg p-2 text-[10px] text-white space-y-1"
-          style={{ width: '120px' }}
-        >
-          <div className="text-cyan-400 font-bold mb-1">Avatar Controls</div>
-          
-          <label className="flex justify-between items-center">
-            <span>Top %</span>
-            <input 
-              type="range" min="10" max="50" value={settings.top}
-              onChange={(e) => updateSetting('top', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.top}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Width</span>
-            <input 
-              type="range" min="50" max="400" value={settings.width}
-              onChange={(e) => updateSetting('width', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.width}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Height</span>
-            <input 
-              type="range" min="50" max="500" value={settings.height}
-              onChange={(e) => updateSetting('height', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.height}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Fade %</span>
-            <input 
-              type="range" min="20" max="100" value={settings.fadeStart}
-              onChange={(e) => updateSetting('fadeStart', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.fadeStart}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Scale</span>
-            <input 
-              type="range" min="20" max="200" value={settings.scale * 100}
-              onChange={(e) => updateSetting('scale', Number(e.target.value) / 100)}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.scale.toFixed(1)}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Img Y</span>
-            <input 
-              type="range" min="-100" max="100" value={settings.offsetY}
-              onChange={(e) => updateSetting('offsetY', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.offsetY}</span>
-          </label>
-          
-          <label className="flex flex-col gap-1 mt-2">
-            <span className="text-cyan-400">Blend Mode</span>
-            <select
-              value={settings.blendMode}
-              onChange={(e) => updateSetting('blendMode', e.target.value)}
-              className="w-full bg-slate-800 text-white rounded px-1 py-1 text-[9px]"
-            >
-              {blendModes.map(mode => (
-                <option key={mode} value={mode}>{mode}</option>
-              ))}
-            </select>
-          </label>
-          
-          <div className="text-cyan-400 font-bold mt-2 mb-1">Filters</div>
-          
-          <label className="flex justify-between items-center">
-            <span>Bright</span>
-            <input 
-              type="range" min="0" max="200" value={settings.brightness}
-              onChange={(e) => updateSetting('brightness', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.brightness}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Contrast</span>
-            <input 
-              type="range" min="0" max="200" value={settings.contrast}
-              onChange={(e) => updateSetting('contrast', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.contrast}</span>
-          </label>
-          
-          <label className="flex justify-between items-center">
-            <span>Saturate</span>
-            <input 
-              type="range" min="0" max="200" value={settings.saturate}
-              onChange={(e) => updateSetting('saturate', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.saturate}</span>
-          </label>
-          
-          <div className="text-pink-400 font-bold mt-2 mb-1">Gradient</div>
-          
-          <label className="flex flex-col gap-1">
-            <span>Type</span>
-            <select
-              value={settings.gradientType}
-              onChange={(e) => updateSetting('gradientType', e.target.value)}
-              className="w-full bg-slate-800 text-white rounded px-1 py-1 text-[9px]"
-            >
-              {gradientTypes.map(type => (
-                <option key={type} value={type}>{type}</option>
-              ))}
-            </select>
-          </label>
-          
-          <label className="flex flex-col gap-1 mt-1">
-            <span>Preset</span>
-            <select
-              onChange={(e) => {
-                const preset = gradientPresets[e.target.value]
-                if (preset) {
-                  updateSetting('gradientColor1', preset.c1)
-                  updateSetting('gradientColor2', preset.c2)
-                }
-              }}
-              className="w-full bg-slate-800 text-white rounded px-1 py-1 text-[9px]"
-            >
-              {gradientPresets.map((p, i) => (
-                <option key={p.name} value={i}>{p.name}</option>
-              ))}
-            </select>
-          </label>
-          
-          <div className="flex gap-1 mt-1">
-            <input 
-              type="color" 
-              value={settings.gradientColor1}
-              onChange={(e) => updateSetting('gradientColor1', e.target.value)}
-              className="w-8 h-6 rounded cursor-pointer"
-            />
-            <input 
-              type="color" 
-              value={settings.gradientColor2}
-              onChange={(e) => updateSetting('gradientColor2', e.target.value)}
-              className="w-8 h-6 rounded cursor-pointer"
-            />
-          </div>
-          
-          <label className="flex justify-between items-center mt-1">
-            <span>Opacity</span>
-            <input 
-              type="range" min="0" max="100" value={settings.gradientOpacity}
-              onChange={(e) => updateSetting('gradientOpacity', Number(e.target.value))}
-              className="w-14 h-2"
-            />
-            <span className="w-6 text-right">{settings.gradientOpacity}</span>
-          </label>
-          
-          <label className="flex flex-col gap-1 mt-1">
-            <span>Blend</span>
-            <select
-              value={settings.gradientBlend}
-              onChange={(e) => updateSetting('gradientBlend', e.target.value)}
-              className="w-full bg-slate-800 text-white rounded px-1 py-1 text-[9px]"
-            >
-              {['color', 'overlay', 'multiply', 'screen', 'soft-light', 'hard-light', 'hue'].map(mode => (
-                <option key={mode} value={mode}>{mode}</option>
-              ))}
-            </select>
-          </label>
-          
-          <button 
-            onClick={() => console.log('Avatar Settings:', JSON.stringify(settings, null, 2))}
-            className="w-full bg-cyan-600 hover:bg-cyan-500 rounded px-2 py-1 mt-1"
+      {/* Avatar Controls - rendered outside phone frame */}
+      {devControlsContainer && createPortal(
+        <div className="relative">
+          <button
+            onClick={() => setShowControls(!showControls)}
+            className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
+            aria-label="Avatar settings"
+            title="Video Avatar"
           >
-            Log Settings
+            🎬
           </button>
-        </div>
+          
+          {showControls && (
+            <div 
+              className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl max-h-[80vh] overflow-y-auto"
+              style={{ width: '180px' }}
+            >
+              <div className="text-cyan-400 font-bold mb-2">Video Avatar</div>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Top %</span>
+                <input 
+                  type="range" min="10" max="50" value={settings.top}
+                  onChange={(e) => updateSetting('top', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{settings.top}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Scale</span>
+                <input 
+                  type="range" min="20" max="200" value={settings.scale * 100}
+                  onChange={(e) => updateSetting('scale', Number(e.target.value) / 100)}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{settings.scale.toFixed(1)}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Width</span>
+                <input 
+                  type="range" min="50" max="400" value={settings.width}
+                  onChange={(e) => updateSetting('width', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{settings.width}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Height</span>
+                <input 
+                  type="range" min="50" max="500" value={settings.height}
+                  onChange={(e) => updateSetting('height', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{settings.height}</span>
+              </label>
+              
+              <div className="text-cyan-400 font-bold mt-3 mb-2">Filters</div>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Bright</span>
+                <input 
+                  type="range" min="0" max="200" value={settings.brightness}
+                  onChange={(e) => updateSetting('brightness', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{settings.brightness}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Contrast</span>
+                <input 
+                  type="range" min="0" max="200" value={settings.contrast}
+                  onChange={(e) => updateSetting('contrast', Number(e.target.value))}
+                  className="flex-1 h-2 accent-cyan-500"
+                />
+                <span className="w-8 text-right text-cyan-300">{settings.contrast}</span>
+              </label>
+            </div>
+          )}
+        </div>,
+        devControlsContainer
       )}
 
       <div 

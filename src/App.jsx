@@ -76,14 +76,21 @@ function EdgeGlowEffects() {
 
 function App() {
   return (
-    <div className="phone-frame">
-      <div className="phone-screen">
-        <div className="phone-notch" />
-        <GameProvider>
-          <EdgeGlowEffects />
-          <GameScreen />
-        </GameProvider>
-        <div className="phone-home-indicator" />
+    <div className="flex items-center justify-center min-h-screen gap-4">
+      {/* Dev Controls Panel - outside phone frame */}
+      <div id="dev-controls" className="fixed left-4 top-4 z-[9999] flex flex-col gap-2">
+        {/* Controls will be portaled here from child components */}
+      </div>
+      
+      <div className="phone-frame">
+        <div className="phone-screen">
+          <div className="phone-notch" />
+          <GameProvider>
+            <EdgeGlowEffects />
+            <GameScreen />
+          </GameProvider>
+          <div className="phone-home-indicator" />
+        </div>
       </div>
     </div>
   )
