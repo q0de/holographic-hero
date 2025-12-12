@@ -50,8 +50,8 @@ export function GameHUD({
               alt={patient?.name || 'Julia'}
               className="w-full h-auto object-cover object-top"
               style={{
-                marginTop: '-4px', // Adjust to show face
-                transform: 'scale(1.2)'
+                marginTop: '-2px', // Adjust to center face
+                transform: 'scale(2.8) translateY(12%)'
               }}
             />
           </div>
