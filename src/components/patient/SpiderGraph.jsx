@@ -2,6 +2,7 @@
 // Radar/Spider chart overlay for patient vitals
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from '../../context/ThemeContext'
 
 export function SpiderGraph({ 
   isOpen, 
@@ -13,6 +14,8 @@ export function SpiderGraph({
   interpolate,
   memory = {}
 }) {
+  const { theme } = useTheme()
+  
   // Helper to get interpolated value
   const getValue = (template) => {
     if (!template) return 0
@@ -50,7 +53,7 @@ export function SpiderGraph({
         label: med.shortName || med.name?.split(' ')[0],
         value: value,
         max: 15,
-        color: '#0ea5e9',
+        color: theme.primary,
         unit: med.unit
       }
     })
@@ -160,7 +163,7 @@ export function SpiderGraph({
                     })
                     .join(' ')}
                   fill="none"
-                  stroke="rgba(14, 165, 233, 0.15)"
+                  stroke={`rgba(${theme.primaryRgb}, 0.15)`}
                   strokeWidth="1"
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -180,7 +183,7 @@ export function SpiderGraph({
                     y1={centerY}
                     x2={endX}
                     y2={endY}
-                    stroke="rgba(14, 165, 233, 0.2)"
+                    stroke={`rgba(${theme.primaryRgb}, 0.2)`}
                     strokeWidth="1"
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Progress, Chip, Button } from '@heroui/react'
+import { useTheme } from '../../context/ThemeContext'
 
 export function GameHUD({
   patient,
@@ -16,6 +17,7 @@ export function GameHUD({
   onTimelineClick,
   onPatientClick
 }) {
+  const { theme } = useTheme()
   // Avatar adjustment controls
   const [showAvatarControls, setShowAvatarControls] = useState(false)
   const [avatarSettings, setAvatarSettings] = useState({
@@ -52,9 +54,10 @@ export function GameHUD({
           >
             {/* Circular avatar with Julia's face */}
             <div 
-              className="w-12 h-12 rounded-full overflow-hidden border-2 border-cyan-500/60 flex-shrink-0"
+              className="w-12 h-12 rounded-full overflow-hidden border-2 flex-shrink-0"
               style={{
-                boxShadow: '0 0 12px rgba(14, 165, 233, 0.4)'
+                borderColor: `rgba(${theme.primaryRgb}, 0.6)`,
+                boxShadow: `0 0 12px rgba(${theme.primaryRgb}, 0.4)`
               }}
             >
               <img 

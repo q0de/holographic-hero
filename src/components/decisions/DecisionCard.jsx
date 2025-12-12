@@ -4,6 +4,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Chip } from '@heroui/react'
+import { useTheme } from '../../context/ThemeContext'
 
 const badgeConfig = {
   reduce: { 
@@ -105,7 +106,19 @@ export function DecisionCard({
   onDragEnd,
   onTap
 }) {
-  const config = badgeConfig[badge] || badgeConfig.maintain
+  const { theme } = useTheme()
+  
+  // Get config, but override "new" type with theme colors
+  let config = badgeConfig[badge] || badgeConfig.maintain
+  if (badge === 'new') {
+    config = {
+      ...config,
+      watermarkColor: theme.primary,
+      glowColor: `rgba(${theme.primaryRgb}, 0.5)`,
+      cardTint: `rgba(${theme.primaryRgb}, 0.08)`,
+      borderAccent: `rgba(${theme.primaryRgb}, 0.4)`,
+    }
+  }
   const isDragging = useRef(false)
   const [shimmer, setShimmer] = useState(false)
   

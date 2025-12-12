@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from '../../context/ThemeContext'
 
 // Floating delta indicator that animates up/down
 function FloatingDeltaIndicator({ delta, isLab }) {
@@ -38,6 +39,7 @@ function FloatingDeltaIndicator({ delta, isLab }) {
 }
 
 export function FanPanels({ medications = [], labs = [], interpolate, memoryDeltas = {}, shouldAnimate = false }) {
+  const { theme } = useTheme()
   // Track previous values for change animation
   const prevValuesRef = useRef({})
   const [valueChanges, setValueChanges] = useState({}) // { key: 'up' | 'down' | null }
@@ -374,8 +376,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
               className="absolute inset-0"
               style={{
                 clipPath: createWedgePath(wedge.start, wedge.end),
-                boxShadow: 'inset 0 0 15px rgba(14, 165, 233, 0.1)',
-                background: `linear-gradient(${wedge.start + 45}deg, rgba(14, 165, 233, 0.08) 0%, transparent 40%)`,
+                boxShadow: `inset 0 0 15px rgba(${theme.primaryRgb}, 0.1)`,
+                background: `linear-gradient(${wedge.start + 45}deg, rgba(${theme.primaryRgb}, 0.08) 0%, transparent 40%)`,
               }}
             />
             

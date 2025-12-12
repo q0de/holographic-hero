@@ -2,6 +2,7 @@
 // Glassmorphic info card for medications and lab values
 
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from '../../context/ThemeContext'
 
 // Helper: Get lab status from value + ranges
 function getLabStatus(value, ranges) {
@@ -52,6 +53,7 @@ function FloatingDelta({ delta, isLab }) {
 }
 
 export function DiegeticCard({ type, data, delay = 0, interpolate, compact = false, delta = null }) {
+  const { theme } = useTheme()
   const isLab = type === 'lab'
   
   // Interpolate the value if it contains memory keys
@@ -63,14 +65,14 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
   const status = isLab ? getLabStatus(numericValue, data.ranges) : 'default'
   
   const glowColors = {
-    default: 'rgba(14, 165, 233, 0.3)',
+    default: `rgba(${theme.primaryRgb}, 0.3)`,
     normal: 'rgba(34, 197, 94, 0.4)',
     elevated: 'rgba(245, 158, 11, 0.4)',
     danger: 'rgba(239, 68, 68, 0.5)'
   }
 
   const borderColors = {
-    default: 'rgba(14, 165, 233, 0.3)',
+    default: `rgba(${theme.primaryRgb}, 0.3)`,
     normal: 'rgba(34, 197, 94, 0.5)',
     elevated: 'rgba(245, 158, 11, 0.5)',
     danger: 'rgba(239, 68, 68, 0.6)'
