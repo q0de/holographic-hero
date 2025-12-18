@@ -74,3 +74,5 @@ export function NoiseTexture({ opacity = 0.15, speed = 30 }) {
 
 export default NoiseTexture
 
+
+
