@@ -6,74 +6,68 @@ import { motion } from 'framer-motion'
 import { Chip } from '@heroui/react'
 import { useTheme } from '../../context/ThemeContext'
 
+// Glass panel style from Figma - scaled for tile size (160x77px)
+// Original uses inset shadows: white top edge, lavender mid, deep purple outer
 const badgeConfig = {
   reduce: { 
     color: 'danger', 
     label: 'REDUCE', 
     icon: '↓',
     watermark: '↘',
-    watermarkColor: '#ef4444',
+    watermarkColor: 'rgba(255, 120, 120, 0.4)',
     glowColor: 'rgba(239, 68, 68, 0.5)',
-    cardTint: 'rgba(239, 68, 68, 0.06)',
-    borderAccent: 'rgba(239, 68, 68, 0.4)',
-    // Red to dark maroon gradient
-    cardGradient: `linear-gradient(180deg, 
-      rgba(60, 20, 25, 1) 0%, 
-      rgba(40, 12, 18, 1) 30%,
-      rgba(25, 8, 12, 1) 70%,
-      rgba(12, 4, 6, 1) 100%
-    )`
+    // Glass panel inner shadows - red/rose tinted
+    innerGlow: `
+      inset 0px 1px 3px 0px rgba(255, 200, 200, 0.9),
+      inset 0px 6px 12px 0px rgba(230, 140, 160, 0.6),
+      inset 0px 20px 30px 0px rgba(180, 60, 90, 0.4)
+    `,
+    bgColor: 'rgba(25, 6, 10, 0.1)'
   },
   increase: { 
     color: 'success', 
     label: 'INCREASE', 
     icon: '↑',
     watermark: '↗',
-    watermarkColor: '#22c55e',
+    watermarkColor: 'rgba(120, 255, 150, 0.4)',
     glowColor: 'rgba(34, 197, 94, 0.5)',
-    cardTint: 'rgba(34, 197, 94, 0.06)',
-    borderAccent: 'rgba(34, 197, 94, 0.4)',
-    // Green to dark forest gradient
-    cardGradient: `linear-gradient(180deg, 
-      rgba(20, 50, 30, 1) 0%, 
-      rgba(12, 35, 20, 1) 30%,
-      rgba(6, 20, 12, 1) 70%,
-      rgba(3, 10, 6, 1) 100%
-    )`
+    // Glass panel inner shadows - green/teal tinted
+    innerGlow: `
+      inset 0px 1px 3px 0px rgba(200, 255, 220, 0.9),
+      inset 0px 6px 12px 0px rgba(120, 220, 160, 0.6),
+      inset 0px 20px 30px 0px rgba(40, 160, 100, 0.4)
+    `,
+    bgColor: 'rgba(6, 20, 12, 0.1)'
   },
   new: { 
     color: 'primary', 
     label: 'NEW', 
     icon: '✦',
     watermark: '✦',
-    watermarkColor: '#0ea5e9',
-    glowColor: 'rgba(14, 165, 233, 0.5)',
-    cardTint: 'rgba(14, 165, 233, 0.08)',
-    borderAccent: 'rgba(14, 165, 233, 0.4)',
-    // Cyan to dark blue gradient (original)
-    cardGradient: `linear-gradient(180deg, 
-      rgba(25, 40, 65, 1) 0%, 
-      rgba(12, 22, 40, 1) 30%,
-      rgba(6, 12, 25, 1) 70%,
-      rgba(2, 5, 12, 1) 100%
-    )`
+    watermarkColor: 'rgba(140, 180, 255, 0.4)',
+    glowColor: 'rgba(88, 59, 220, 0.5)',
+    // Glass panel inner shadows - purple/indigo (from Figma)
+    innerGlow: `
+      inset 0px 1px 3px 0px rgba(255, 255, 255, 0.9),
+      inset 0px 6px 12px 0px rgba(154, 137, 230, 0.6),
+      inset 0px 20px 30px 0px rgba(88, 59, 220, 0.4)
+    `,
+    bgColor: 'rgba(6, 2, 19, 0.1)'
   },
   maintain: { 
     color: 'default', 
     label: 'MAINTAIN', 
     icon: '→',
     watermark: '⟷',
-    watermarkColor: '#94a3b8',
+    watermarkColor: 'rgba(180, 180, 200, 0.4)',
     glowColor: 'rgba(148, 163, 184, 0.4)',
-    cardTint: 'rgba(148, 163, 184, 0.04)',
-    borderAccent: 'rgba(148, 163, 184, 0.3)',
-    // Gray to dark slate gradient
-    cardGradient: `linear-gradient(180deg, 
-      rgba(40, 45, 55, 1) 0%, 
-      rgba(25, 28, 35, 1) 30%,
-      rgba(15, 17, 22, 1) 70%,
-      rgba(8, 9, 12, 1) 100%
-    )`
+    // Glass panel inner shadows - neutral/slate tinted
+    innerGlow: `
+      inset 0px 1px 3px 0px rgba(220, 220, 230, 0.9),
+      inset 0px 6px 12px 0px rgba(160, 160, 190, 0.6),
+      inset 0px 20px 30px 0px rgba(100, 100, 140, 0.4)
+    `,
+    bgColor: 'rgba(10, 10, 15, 0.1)'
   }
 }
 
@@ -113,10 +107,13 @@ export function DecisionCard({
   if (badge === 'new') {
     config = {
       ...config,
-      watermarkColor: theme.primary,
+      watermarkColor: `rgba(${theme.primaryRgb}, 0.4)`,
       glowColor: `rgba(${theme.primaryRgb}, 0.5)`,
-      cardTint: `rgba(${theme.primaryRgb}, 0.08)`,
-      borderAccent: `rgba(${theme.primaryRgb}, 0.4)`,
+      innerGlow: `
+        inset 0px 1px 3px 0px rgba(255, 255, 255, 0.9),
+        inset 0px 6px 12px 0px rgba(${theme.primaryRgb}, 0.6),
+        inset 0px 20px 30px 0px rgba(${theme.primaryRgb}, 0.4)
+      `,
     }
   }
   const isDragging = useRef(false)
@@ -181,12 +178,12 @@ export function DecisionCard({
         scale: 1.1, 
         rotate: 5, 
         zIndex: 100,
-        boxShadow: `0 20px 40px rgba(0,0,0,0.5), 0 0 40px ${config.glowColor}`
+        boxShadow: `${config.innerGlow}, 0 20px 40px rgba(0,0,0,0.4), 0 0 50px ${config.glowColor}`
       }}
       whileHover={{ 
         scale: 1.03,
         y: -2,
-        boxShadow: `0 12px 30px rgba(0,0,0,0.3), 0 0 25px ${config.glowColor}`
+        boxShadow: `${config.innerGlow}, 0 12px 30px rgba(0,0,0,0.3), 0 0 30px ${config.glowColor}`
       }}
       whileTap={{ scale: 0.98 }}
       onTapStart={() => { isDragging.current = false }}
@@ -197,32 +194,24 @@ export function DecisionCard({
       role="button"
       tabIndex={0}
       aria-label={`${title}: ${description}. Duration: ${duration} weeks`}
-      className="relative cursor-grab active:cursor-grabbing select-none w-full h-full overflow-hidden"
+      className="relative cursor-grab active:cursor-grabbing select-none w-full h-full overflow-clip"
       style={{
-        background: config.cardGradient,
-        backdropFilter: 'blur(10px)',
-        border: `1px solid ${config.borderAccent}`,
-        borderTop: `2px solid ${config.borderAccent}`,
-        borderBottom: '1px solid rgba(0, 0, 0, 0.8)',
-        borderRadius: '12px',
+        background: config.bgColor,
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        border: 'none',
+        borderRadius: '20px',
         padding: '10px 8px 14px 8px',
-        boxShadow: `
-          0 6px 30px rgba(0,0,0,0.7),
-          0 2px 8px rgba(0,0,0,0.5),
-          0 0 20px ${config.glowColor.replace('0.5', '0.15')},
-          inset 0 1px 1px rgba(255,255,255,0.12),
-          inset 0 -1px 2px rgba(0,0,0,0.5)
-        `,
+        boxShadow: config.innerGlow,
         minHeight: '85px',
         touchAction: 'none'
       }}
     >
-      {/* Color tint overlay */}
+      {/* Glass panel glow overlay */}
       <div 
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none rounded-[20px]"
         style={{
-          background: `linear-gradient(135deg, ${config.cardTint} 0%, transparent 60%)`,
-          borderRadius: '12px',
+          boxShadow: config.innerGlow,
         }}
       />
       
