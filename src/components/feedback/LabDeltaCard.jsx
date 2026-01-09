@@ -29,14 +29,14 @@ export function LabDeltaCard({ name, before, after, unit }) {
       }}
     >
       {/* Name */}
-      <div className="text-sm font-medium text-slate-300">
+      <div className="text-sm font-medium" style={{ color: '#330145' }}>
         {name}
       </div>
 
       {/* Values */}
       <div className="flex items-center gap-2 text-sm">
         {/* Before value */}
-        <span className="text-slate-500 font-mono">
+        <span className="font-mono" style={{ color: '#330145', opacity: 0.7 }}>
           {before}
         </span>
 
@@ -54,18 +54,15 @@ export function LabDeltaCard({ name, before, after, unit }) {
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2, type: "spring", damping: 12 }}
-          className={`font-mono font-bold ${
-            improved ? 'text-success-400' : 
-            worsened ? 'text-danger-400' : 
-            'text-white'
-          }`}
+          className="font-mono font-bold"
+          style={{ color: '#330145' }}
         >
           {after}
         </motion.span>
 
         {/* Unit */}
         {unit && (
-          <span className="text-xs text-slate-500">
+          <span className="text-xs" style={{ color: '#330145', opacity: 0.7 }}>
             {unit}
           </span>
         )}

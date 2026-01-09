@@ -53,7 +53,7 @@ export function SpiderGraph({
         label: med.shortName || med.name?.split(' ')[0],
         value: value,
         max: 15,
-        color: theme.primary,
+        color: 'rgb(139, 92, 246)', // violet-500
         unit: med.unit
       }
     })
@@ -163,7 +163,7 @@ export function SpiderGraph({
                     })
                     .join(' ')}
                   fill="none"
-                  stroke={`rgba(${theme.primaryRgb}, 0.15)`}
+                  stroke="rgba(139, 92, 246, 0.15)"
                   strokeWidth="1"
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -183,7 +183,7 @@ export function SpiderGraph({
                     y1={centerY}
                     x2={endX}
                     y2={endY}
-                    stroke={`rgba(${theme.primaryRgb}, 0.2)`}
+                    stroke="rgba(139, 92, 246, 0.2)"
                     strokeWidth="1"
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}

@@ -376,8 +376,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
               className="absolute inset-0"
               style={{
                 clipPath: createWedgePath(wedge.start, wedge.end),
-                boxShadow: `inset 0 0 15px rgba(${theme.primaryRgb}, 0.1)`,
-                background: `linear-gradient(${wedge.start + 45}deg, rgba(${theme.primaryRgb}, 0.08) 0%, transparent 40%)`,
+                boxShadow: `inset 0 0 15px rgba(139, 92, 246, 0.1)`,
+                background: `linear-gradient(${wedge.start + 45}deg, rgba(139, 92, 246, 0.08) 0%, transparent 40%)`,
               }}
             />
             

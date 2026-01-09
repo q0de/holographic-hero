@@ -207,7 +207,7 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranc
           style={{
             width: settings.width + 40,
             height: settings.height + 40,
-            background: `radial-gradient(ellipse, ${isActive ? `rgba(${theme.primaryRgb}, 0.4)` : `rgba(${theme.primaryRgb}, 0.2)`} 0%, transparent 70%)`,
+            background: `radial-gradient(ellipse, ${isActive ? `rgba(139, 92, 246, 0.4)` : `rgba(139, 92, 246, 0.2)`} 0%, transparent 70%)`,
             filter: 'blur(20px)'
           }}
         />
@@ -225,7 +225,7 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranc
               style={{
                 width: settings.width,
                 height: settings.height,
-                background: `radial-gradient(circle, rgba(${theme.primaryRgb}, 0.8) 0%, rgba(${theme.primaryRgb}, 0.4) 30%, transparent 70%)`,
+                background: `radial-gradient(circle, rgba(139, 92, 246, 0.8) 0%, rgba(139, 92, 246, 0.4) 30%, transparent 70%)`,
                 filter: 'blur(10px)'
               }}
             />
@@ -245,8 +245,8 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranc
               style={{
                 width: 150,
                 height: 150,
-                border: `3px solid rgba(${theme.primaryRgb}, 0.9)`,
-                boxShadow: `0 0 30px rgba(${theme.primaryRgb}, 0.8), inset 0 0 20px rgba(${theme.primaryRgb}, 0.4)`
+                border: `3px solid rgba(139, 92, 246, 0.9)`,
+                boxShadow: `0 0 30px rgba(139, 92, 246, 0.8), inset 0 0 20px rgba(139, 92, 246, 0.4)`
               }}
             />
           )}
@@ -336,7 +336,7 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranc
               animate={{ opacity: [0.1, 0.3, 0.1] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
               style={{
-                background: `linear-gradient(to bottom, rgba(${theme.primaryRgb}, 0.3) 0%, transparent 100%)`,
+                background: `linear-gradient(to bottom, rgba(139, 92, 246, 0.3) 0%, transparent 100%)`,
                 mixBlendMode: 'overlay'
               }}
             />

@@ -68,9 +68,9 @@ export function BackgroundGrid() {
     setDevControlsContainer(document.getElementById('dev-controls'))
   }, [])
   
-  // Theme-based color
-  const c = theme.primaryRgb
-  const c2 = theme.secondaryRgb
+  // Use purple for radial graphics instead of theme blue
+  const c = '139, 92, 246' // violet-500
+  const c2 = '168, 85, 247' // purple-500
   
   return (
     <>
@@ -111,14 +111,15 @@ export function BackgroundGrid() {
       )}
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Deep space gradient - creates depth */}
+        {/* Figma Glass Panel Background - dark purple with inner glow */}
         <div 
           className="absolute inset-0"
           style={{
-            background: `
-              radial-gradient(ellipse 120% 100% at 50% 100%, rgba(10, 15, 30, 1) 0%, transparent 50%),
-              radial-gradient(ellipse 80% 50% at 50% 0%, rgba(20, 30, 50, 0.8) 0%, transparent 70%),
-              linear-gradient(180deg, rgba(8, 12, 24, 1) 0%, rgba(15, 23, 42, 1) 50%, rgba(10, 18, 35, 1) 100%)
+            background: 'rgba(6, 2, 19, 0.98)',
+            boxShadow: `
+              inset 0px 3px 9px 0px rgba(255, 255, 255, 0.6),
+              inset 0px 24px 36px 0px #9a89e6,
+              inset 0px 72px 96px 0px #583bdc
             `
           }}
         />
@@ -210,14 +211,14 @@ export function BackgroundGrid() {
           }}
         />
         
-        {/* Ground Shadow - STRONGER */}
+        {/* Ground Shadow - STRONGER - Lighter purple */}
         {effects.groundShadow && (
           <div 
             className="absolute bottom-0 left-0 right-0 h-[50%]"
             style={{
               background: `
-                radial-gradient(ellipse 90% 50% at 50% 100%, rgba(0, 0, 0, 0.7) 0%, transparent 70%),
-                linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, transparent 60%)
+                radial-gradient(ellipse 90% 50% at 50% 100%, rgba(60, 40, 100, 0.7) 0%, transparent 70%),
+                linear-gradient(0deg, rgba(50, 35, 85, 0.6) 0%, transparent 60%)
               `
             }}
           />
@@ -251,11 +252,11 @@ export function BackgroundGrid() {
           }}
         />
         
-        {/* Vignette */}
+        {/* Vignette - Lighter purple */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(5, 10, 20, 0.7) 100%)'
+            background: 'radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(45, 30, 80, 0.5) 100%)'
           }}
         />
       </div>

@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button, Progress } from '@heroui/react'
+import { getBlurSettings } from './FeedbackModal'
 
 export function TimePassage({
   isOpen,
@@ -18,6 +19,7 @@ export function TimePassage({
   const [isPaused, setIsPaused] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
   const [alertAcknowledged, setAlertAcknowledged] = useState(false)
+  const blurSettings = getBlurSettings()
 
   // Reset state when modal opens
   useEffect(() => {
@@ -75,8 +77,9 @@ export function TimePassage({
           exit={{ opacity: 0 }}
           className="absolute inset-0 flex items-center justify-center p-4"
           style={{ 
-            backgroundColor: 'rgba(0, 0, 0, 0.4)', 
-            backdropFilter: 'blur(12px)',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)', 
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
             zIndex: 9999 
           }}
         >
@@ -84,25 +87,54 @@ export function TimePassage({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="w-full max-w-[320px] rounded-2xl overflow-hidden"
+            className="w-full max-w-[320px] rounded-[24px] overflow-hidden relative"
             style={{
-              background: 'rgba(15, 23, 42, 0.7)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(14, 165, 233, 0.4)',
-              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.4), 0 0 40px rgba(14, 165, 233, 0.2), inset 0 1px 0 rgba(255,255,255,0.1)'
+              backgroundImage: `
+                linear-gradient(rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%),
+                linear-gradient(90deg, rgba(243, 245, 255, 0.3) 0%, rgba(243, 245, 255, 0.3) 100%)
+              `,
+              backdropFilter: `blur(${blurSettings.backdropBlur}px)`,
+              WebkitBackdropFilter: `blur(${blurSettings.backdropBlur}px)`,
+              border: `${blurSettings.borderWidth}px solid white`,
+              boxShadow: '0px 16px 30px 0px #061124'
             }}
           >
+            {/* Outer blur border overlay - from Figma */}
+            {blurSettings.outerBorderWidth > 0 && (
+              <div 
+                className="absolute inset-0 pointer-events-none rounded-[24px]"
+                style={{
+                  border: `${blurSettings.outerBorderWidth}px solid white`,
+                  filter: `blur(${blurSettings.borderBlur}px)`,
+                  opacity: blurSettings.borderOpacity
+                }}
+              />
+            )}
             {/* Header */}
-            <div className="px-4 py-3 border-b border-white/10 text-center">
-              <span className="text-white font-semibold text-sm">{headerText}</span>
+            <div className="px-4 py-3 border-b border-white/10 text-center relative z-10">
+              <span 
+                className="text-sm relative uppercase"
+                style={{
+                  color: '#330145',
+                  fontFamily: "'Rift', 'Rift Bold Italic', 'Arial Black', 'Impact', sans-serif",
+                  fontWeight: 700,
+                  fontStyle: 'italic',
+                  letterSpacing: '0.1em',
+                  filter: 'blur(0.5px)',
+                  opacity: 0.9,
+                  textShadow: '0 0 8px rgba(51, 1, 69, 0.5), 0 0 16px rgba(139, 92, 246, 0.3)'
+                }}
+              >
+                {headerText}
+              </span>
             </div>
 
             {/* Body */}
-            <div className="p-4">
+            <div className="p-4 relative z-10">
               {/* Week labels */}
               <div className="flex justify-between text-xs mb-2">
-                <span className="text-slate-400">Week {startWeek}</span>
-                <span className="text-sky-400 font-medium">Week {endWeek}</span>
+                <span style={{ color: '#330145', opacity: 0.7 }}>Week {startWeek}</span>
+                <span className="font-medium" style={{ color: '#330145' }}>Week {endWeek}</span>
               </div>
 
               {/* Progress bar */}
@@ -128,7 +160,8 @@ export function TimePassage({
 
               {/* Progress text */}
               <motion.p
-                className="text-center text-xs text-slate-400 mt-3"
+                className="text-center text-xs mt-3"
+                style={{ color: '#330145', opacity: 0.7 }}
                 animate={{ opacity: [0.5, 1, 0.5] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
@@ -155,10 +188,10 @@ export function TimePassage({
                       ⚠️
                     </motion.span>
                     <div className="flex-1">
-                      <div className="text-xs font-medium text-red-400 mb-1">
+                      <div className="text-xs font-medium mb-1" style={{ color: '#330145' }}>
                         Patient Alert
                       </div>
-                      <p className="text-[11px] text-slate-300">
+                      <p className="text-[11px]" style={{ color: '#330145' }}>
                         {alert.message}
                       </p>
                     </div>
@@ -178,7 +211,7 @@ export function TimePassage({
 
             {/* Footer - Show complete button when done */}
             {progress >= 100 && (
-              <div className="px-4 pb-4">
+              <div className="px-4 pb-4 relative z-10">
                 <Button
                   color="primary"
                   variant="solid"

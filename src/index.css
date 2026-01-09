@@ -90,13 +90,20 @@ body {
 }
 
 /* Phone screen - matches inner display area */
+/* Glass panel background from Figma - dark purple with inner glow */
 .phone-screen {
   width: 100%;
   height: 100%;
-  background: #0f172a;
+  background: rgba(6, 2, 19, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-radius: 52px;
   overflow: hidden;
   position: relative;
+  box-shadow: 
+    inset 0px 3px 9px 0px rgba(255, 255, 255, 0.6),
+    inset 0px 24px 36px 0px #9a89e6,
+    inset 0px 72px 96px 0px #583bdc;
 }
 
 /* 
@@ -214,9 +221,9 @@ body {
   right: 0;
   padding: 8px 8px 6px 8px;
   background: linear-gradient(0deg, 
-    #0f172a 0%, 
-    #0f172a 70%,
-    rgba(15, 23, 42, 0.9) 90%, 
+    rgba(40, 30, 70, 1) 0%, 
+    rgba(40, 30, 70, 0.95) 70%,
+    rgba(40, 30, 70, 0.7) 90%, 
     transparent 100%
   );
   z-index: 30;
