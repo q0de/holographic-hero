@@ -6,6 +6,36 @@ import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 
+// Load background image settings from localStorage
+const loadBgImageSettings = () => {
+  try {
+    const saved = localStorage.getItem('bgImageSettings')
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (e) {
+    console.warn('Failed to load bg image settings:', e)
+  }
+  return {
+    offsetX: -10,
+    offsetY: -54,
+    scale: 1.45,
+    opacity: 0.87,
+    hue: 0,
+    saturation: 100,
+    brightness: 100
+  }
+}
+
+// Save background image settings to localStorage
+const saveBgImageSettings = (settings) => {
+  try {
+    localStorage.setItem('bgImageSettings', JSON.stringify(settings))
+  } catch (e) {
+    console.warn('Failed to save bg image settings:', e)
+  }
+}
+
 // Floating particle component - MORE VISIBLE
 function FloatingParticles({ count = 20, primaryRgb }) {
   const particles = useMemo(() => Array.from({ length: count }, (_, i) => ({
@@ -58,6 +88,55 @@ export function BackgroundGrid() {
     lightRays: true
   })
   
+  // Background image settings
+  const [bgImageSettings, setBgImageSettings] = useState(() => loadBgImageSettings())
+  
+  // FanPanels (Star Burst Graphic) settings
+  const [fanPanelsSettings, setFanPanelsSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fanPanelsSettings')
+      if (saved) return JSON.parse(saved)
+    } catch (e) {
+      console.warn('Failed to load fan panels settings:', e)
+    }
+    return {
+      opacity: 1.0,
+      backgroundOpacity: 0.45,
+      blur: 0,
+      borderIntensity: 0.8,
+      glowIntensity: 0.1,
+      glowOpacity: 0.08
+    }
+  })
+  
+  useEffect(() => {
+    const saved = loadBgImageSettings()
+    setBgImageSettings(saved)
+    
+    try {
+      const fanPanelsSaved = localStorage.getItem('fanPanelsSettings')
+      if (fanPanelsSaved) setFanPanelsSettings(JSON.parse(fanPanelsSaved))
+    } catch (e) {}
+  }, [])
+  
+  const updateBgImage = (key, value) => {
+    const newSettings = { ...bgImageSettings, [key]: value }
+    setBgImageSettings(newSettings)
+    saveBgImageSettings(newSettings)
+  }
+  
+  const updateFanPanels = (key, value) => {
+    const newSettings = { ...fanPanelsSettings, [key]: value }
+    setFanPanelsSettings(newSettings)
+    try {
+      localStorage.setItem('fanPanelsSettings', JSON.stringify(newSettings))
+      // Dispatch custom event to notify FanPanels of the update
+      window.dispatchEvent(new CustomEvent('fanPanelsSettingsUpdated', { detail: newSettings }))
+    } catch (e) {
+      console.warn('Failed to save fan panels settings:', e)
+    }
+  }
+  
   const toggleEffect = (key) => {
     setEffects(prev => ({ ...prev, [key]: !prev[key] }))
   }
@@ -88,22 +167,158 @@ export function BackgroundGrid() {
           
           {showControls && (
             <div 
-              className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl"
-              style={{ width: '140px' }}
+              className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[10px] text-white border border-slate-600 shadow-xl overflow-y-auto"
+              style={{ width: '200px', maxHeight: 'calc(100vh - 40px)', padding: '8px' }}
             >
-              <div className="text-purple-400 font-bold mb-2">Depth Effects</div>
+              <div className="text-purple-400 font-bold mb-1 text-[11px]">Depth Effects</div>
               
               {Object.entries(effects).map(([key, value]) => (
-                <label key={key} className="flex items-center gap-2 cursor-pointer">
+                <label key={key} className="flex items-center gap-1 mb-1 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={value}
                     onChange={() => toggleEffect(key)}
                     className="w-3 h-3 accent-purple-500"
                   />
-                  <span className="capitalize text-slate-300">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                  <span className="capitalize text-slate-300 text-[10px]">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                 </label>
               ))}
+              
+              <div className="text-purple-400 font-bold mt-3 mb-1 text-[11px]">Background Image</div>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">X Offset</span>
+                <input
+                  type="range" min="-200" max="200" value={bgImageSettings.offsetX}
+                  onChange={(e) => updateBgImage('offsetX', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{bgImageSettings.offsetX}px</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Y Offset</span>
+                <input
+                  type="range" min="-200" max="200" value={bgImageSettings.offsetY}
+                  onChange={(e) => updateBgImage('offsetY', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{bgImageSettings.offsetY}px</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Scale</span>
+                <input
+                  type="range" min="50" max="300" value={bgImageSettings.scale * 100}
+                  onChange={(e) => updateBgImage('scale', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(bgImageSettings.scale * 100)}%</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Opacity</span>
+                <input
+                  type="range" min="0" max="100" value={bgImageSettings.opacity * 100}
+                  onChange={(e) => updateBgImage('opacity', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(bgImageSettings.opacity * 100)}%</span>
+              </label>
+              
+              <div className="text-purple-400 font-bold mt-2 mb-1 text-[11px]">Color Adjust</div>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Hue</span>
+                <input
+                  type="range" min="0" max="360" value={bgImageSettings.hue}
+                  onChange={(e) => updateBgImage('hue', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{bgImageSettings.hue}°</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Saturation</span>
+                <input
+                  type="range" min="0" max="200" value={bgImageSettings.saturation}
+                  onChange={(e) => updateBgImage('saturation', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{bgImageSettings.saturation}%</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Brightness</span>
+                <input
+                  type="range" min="0" max="200" value={bgImageSettings.brightness}
+                  onChange={(e) => updateBgImage('brightness', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{bgImageSettings.brightness}%</span>
+              </label>
+              
+              <div className="text-purple-400 font-bold mt-3 mb-1 text-[11px]">Star Burst Graphic (FanPanels)</div>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Opacity</span>
+                <input
+                  type="range" min="0" max="100" value={fanPanelsSettings.opacity * 100}
+                  onChange={(e) => updateFanPanels('opacity', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(fanPanelsSettings.opacity * 100)}%</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Background Opacity</span>
+                <input
+                  type="range" min="0" max="100" value={fanPanelsSettings.backgroundOpacity * 100}
+                  onChange={(e) => updateFanPanels('backgroundOpacity', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(fanPanelsSettings.backgroundOpacity * 100)}%</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Blur</span>
+                <input
+                  type="range" min="0" max="20" step="0.5" value={fanPanelsSettings.blur}
+                  onChange={(e) => updateFanPanels('blur', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{fanPanelsSettings.blur}px</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Border Intensity</span>
+                <input
+                  type="range" min="0" max="100" value={fanPanelsSettings.borderIntensity * 100}
+                  onChange={(e) => updateFanPanels('borderIntensity', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(fanPanelsSettings.borderIntensity * 100)}%</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Glow Intensity</span>
+                <input
+                  type="range" min="0" max="100" value={fanPanelsSettings.glowIntensity * 100}
+                  onChange={(e) => updateFanPanels('glowIntensity', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(fanPanelsSettings.glowIntensity * 100)}%</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-0">
+                <span className="text-slate-300 text-[10px]">Glow Opacity</span>
+                <input
+                  type="range" min="0" max="100" value={fanPanelsSettings.glowOpacity * 100}
+                  onChange={(e) => updateFanPanels('glowOpacity', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(fanPanelsSettings.glowOpacity * 100)}%</span>
+              </label>
             </div>
           )}
         </div>,
@@ -111,11 +326,33 @@ export function BackgroundGrid() {
       )}
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Figma Glass Panel Background - dark purple with inner glow */}
+        {/* Main background image - LUX_Game-Sort_Version2.png */}
         <div 
           className="absolute inset-0"
           style={{
-            background: 'rgba(6, 2, 19, 0.98)',
+            backgroundImage: 'url(/LUX_Game-Sort_Version2.png)',
+            backgroundSize: `${bgImageSettings.scale * 100}%`,
+            backgroundPosition: `calc(50% + ${bgImageSettings.offsetX}px) calc(50% + ${bgImageSettings.offsetY}px)`,
+            backgroundRepeat: 'no-repeat',
+            opacity: bgImageSettings.opacity,
+            filter: `
+              hue-rotate(${bgImageSettings.hue}deg)
+              saturate(${bgImageSettings.saturation}%)
+              brightness(${bgImageSettings.brightness}%)
+            `,
+            WebkitFilter: `
+              hue-rotate(${bgImageSettings.hue}deg)
+              saturate(${bgImageSettings.saturation}%)
+              brightness(${bgImageSettings.brightness}%)
+            `
+          }}
+        />
+        
+        {/* Figma Glass Panel Background overlay - dark purple with inner glow (reduced opacity so background image shows through) */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: 'rgba(6, 2, 19, 0.4)',
             boxShadow: `
               inset 0px 3px 9px 0px rgba(255, 255, 255, 0.6),
               inset 0px 24px 36px 0px #9a89e6,
@@ -124,7 +361,7 @@ export function BackgroundGrid() {
           }}
         />
         
-        {/* Distant stars */}
+        {/* Distant stars - keep original simple version */}
         <div 
           className="absolute inset-0 opacity-40"
           style={{

@@ -4,7 +4,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { useGame } from '../context/GameContext'
 import { gameConfig } from '../data/scenarios'
-import GameHUD from './layout/GameHUD'
+import HolographicHeader from './layout/HolographicHeader'
 import RadialPatientView from './layout/RadialPatientView'
 import DecisionGrid from './decisions/DecisionGrid'
 import FeedbackModal from './feedback/FeedbackModal'
@@ -50,6 +50,7 @@ export function GameScreen() {
   const [cardAnimationKey, setCardAnimationKey] = useState(0) // Increment to re-deal cards
   const [showSpiderGraph, setShowSpiderGraph] = useState(false) // Spider graph overlay
   const patientCenterRef = useRef(null)
+  const [gameAreaTopMargin, setGameAreaTopMargin] = useState(0) // Control game area vertical position
   
   // Wrap time passage complete to trigger card re-deal animation
   const handleTimePassageWithRedeal = useCallback(() => {
@@ -124,8 +125,8 @@ export function GameScreen() {
       {/* Film grain / noise overlay */}
       <NoiseTexture opacity={0.12} speed={40} />
       
-      {/* Top HUD */}
-      <GameHUD
+      {/* Holographic Header - merged with patient info, week tracker, and dosage meter */}
+      <HolographicHeader
         patient={gameConfig.patient}
         currentWeek={currentWeek}
         currentDosage={currentDosage}
@@ -134,10 +135,12 @@ export function GameScreen() {
         showMeter={true}
         onTimelineClick={() => setShowSpiderGraph(true)}
         onPatientClick={() => console.log('Patient clicked')}
+        gameAreaTopMargin={gameAreaTopMargin}
+        onGameAreaTopMarginChange={setGameAreaTopMargin}
       />
 
       {/* Main game area */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative" style={{ marginTop: `${gameAreaTopMargin}px` }}>
         <RadialPatientView
           patient={gameConfig.patient}
           symptoms={currentScenario?.symptoms || []}

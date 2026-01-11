@@ -477,7 +477,7 @@ export function FeedbackModal({
             >
               <img 
                 alt="Background" 
-                src="/LUX_Game-Sort_Version2.png"
+                src="http://localhost:3845/assets/542f4007baaaa57dbbe0a22987485690b0d0a702.png"
                 className="absolute"
                 style={{ 
                   width: `${100 * blurSettings.imageScale}%`,
@@ -496,7 +496,7 @@ export function FeedbackModal({
                   console.error('Full path attempted:', window.location.origin + e.target.src)
                 }}
                 onLoad={() => {
-                  console.log('Background image loaded successfully:', '/LUX_Game-Sort_Version2.png')
+                  console.log('Background image loaded successfully')
                 }}
               />
             </div>

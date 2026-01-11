@@ -1,6 +1,8 @@
 // SpiderGraph.jsx
 // Radar/Spider chart overlay for patient vitals
 
+import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 
@@ -15,6 +17,38 @@ export function SpiderGraph({
   memory = {}
 }) {
   const { theme } = useTheme()
+  
+  // Spider graph controls
+  const [showControls, setShowControls] = useState(false)
+  const [spiderSettings, setSpiderSettings] = useState({
+    top: 38, // percentage
+    left: 50, // percentage
+    scale: 1.0,
+    opacity: 1
+  })
+  
+  const updateSpiderSetting = (key, value) => {
+    setSpiderSettings(prev => ({ ...prev, [key]: value }))
+  }
+  
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('spiderGraphSettings')
+      if (saved) {
+        const settings = JSON.parse(saved)
+        setSpiderSettings(settings)
+      }
+    } catch (e) {
+      console.error('Failed to load spider graph settings:', e)
+    }
+  }, [])
+
+  // Get portal container after mount
+  const [devControlsContainer, setDevControlsContainer] = useState(null)
+  useEffect(() => {
+    setDevControlsContainer(document.getElementById('dev-controls'))
+  }, [])
   
   // Helper to get interpolated value
   const getValue = (template) => {
@@ -93,32 +127,120 @@ export function SpiderGraph({
   const gridLevels = [0.25, 0.5, 0.75, 1]
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200]"
-            style={{
-              background: 'rgba(0, 0, 0, 0.7)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)'
-            }}
-            onClick={onClose}
-          />
-
-          {/* Spider Graph Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="fixed left-1/2 top-[38%] -translate-x-1/2 -translate-y-1/2 z-[201]"
-            onClick={(e) => e.stopPropagation()}
+    <>
+      {/* Spider Graph Controls - rendered outside phone frame, always visible */}
+      {devControlsContainer && createPortal(
+        <div className="relative">
+          <button
+            onClick={() => setShowControls(!showControls)}
+            className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
+            aria-label="Spider graph settings"
+            title="Spider Graph"
           >
+            🕸️
+          </button>
+          
+          {showControls && (
+            <div 
+              className="absolute top-0 left-10 bg-slate-900 rounded-lg p-3 text-[11px] text-white space-y-2 border border-slate-600 shadow-xl"
+              style={{ width: '200px', maxHeight: '80vh', overflowY: 'auto', zIndex: 10000 }}
+            >
+              <div className="text-purple-400 font-bold mb-2 flex justify-between items-center sticky top-0 bg-slate-900 pb-2">
+                <span>Spider Graph</span>
+                <button 
+                  onClick={() => setShowControls(false)}
+                  className="text-slate-400 hover:text-white text-lg leading-none"
+                >×</button>
+              </div>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Top %</span>
+                <input 
+                  type="range" min="0" max="100" value={spiderSettings.top}
+                  onChange={(e) => updateSpiderSetting('top', Number(e.target.value))}
+                  className="flex-1 h-2 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 font-mono">{spiderSettings.top}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Left %</span>
+                <input 
+                  type="range" min="0" max="100" value={spiderSettings.left}
+                  onChange={(e) => updateSpiderSetting('left', Number(e.target.value))}
+                  className="flex-1 h-2 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 font-mono">{spiderSettings.left}</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Scale</span>
+                <input 
+                  type="range" min="50" max="200" value={spiderSettings.scale * 100}
+                  onChange={(e) => updateSpiderSetting('scale', Number(e.target.value) / 100)}
+                  className="flex-1 h-2 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 font-mono">{(spiderSettings.scale * 100).toFixed(0)}%</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Opacity</span>
+                <input 
+                  type="range" min="0" max="100" value={spiderSettings.opacity * 100}
+                  onChange={(e) => updateSpiderSetting('opacity', Number(e.target.value) / 100)}
+                  className="flex-1 h-2 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 font-mono">{(spiderSettings.opacity * 100).toFixed(0)}</span>
+              </label>
+              
+              <button 
+                onClick={() => {
+                  console.log('Spider Graph Settings:', JSON.stringify(spiderSettings, null, 2))
+                  localStorage.setItem('spiderGraphSettings', JSON.stringify(spiderSettings))
+                  alert('Spider Graph settings saved!')
+                }}
+                className="w-full bg-purple-600 hover:bg-purple-500 rounded px-3 py-2 mt-2 text-xs font-medium"
+              >
+                💾 Save Settings
+              </button>
+            </div>
+          )}
+        </div>,
+        devControlsContainer
+      )}
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200]"
+              style={{
+                background: 'rgba(0, 0, 0, 0.7)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
+              }}
+              onClick={onClose}
+            />
+
+            {/* Spider Graph Container */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="fixed -translate-x-1/2 -translate-y-1/2 z-[201]"
+              style={{
+                left: `${spiderSettings.left}%`,
+                top: `${spiderSettings.top}%`,
+                transform: `translateX(-50%) translateY(-50%) scale(${spiderSettings.scale})`,
+                opacity: spiderSettings.opacity
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
             {/* Title */}
             <motion.div 
               className="text-center mb-2"
@@ -291,6 +413,7 @@ export function SpiderGraph({
         </>
       )}
     </AnimatePresence>
+    </>
   )
 }
 

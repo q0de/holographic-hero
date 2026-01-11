@@ -128,6 +128,54 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
     fadeStart: 50,        // % where blur starts
   })
   
+  // Load FanPanels settings from localStorage (controlled by BackgroundGrid)
+  const [fanPanelsSettings, setFanPanelsSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fanPanelsSettings')
+      if (saved) return JSON.parse(saved)
+    } catch (e) {
+      console.warn('Failed to load fan panels settings:', e)
+    }
+    return {
+      opacity: 1.0,
+      backgroundOpacity: 0.45,
+      blur: 0,
+      borderIntensity: 0.8,
+      glowIntensity: 0.1,
+      glowOpacity: 0.08
+    }
+  })
+  
+  // Listen for changes to fanPanelsSettings in localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const saved = localStorage.getItem('fanPanelsSettings')
+        if (saved) {
+          setFanPanelsSettings(JSON.parse(saved))
+        }
+      } catch (e) {
+        console.warn('Failed to load fan panels settings:', e)
+      }
+    }
+    
+    const handleCustomEvent = (event) => {
+      setFanPanelsSettings(event.detail)
+    }
+    
+    // Listen for custom event (immediate updates from BackgroundGrid)
+    window.addEventListener('fanPanelsSettingsUpdated', handleCustomEvent)
+    // Also check localStorage periodically as fallback
+    const interval = setInterval(handleStorageChange, 200)
+    window.addEventListener('storage', handleStorageChange)
+    
+    return () => {
+      clearInterval(interval)
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('fanPanelsSettingsUpdated', handleCustomEvent)
+    }
+  }, [])
+  
   const updateSetting = (key, value) => {
     setBlurSettings(prev => ({ ...prev, [key]: value }))
   }
@@ -275,7 +323,14 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
         devControlsContainer
       )}
     
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[5]">
+    <div 
+      className="absolute inset-0 overflow-hidden pointer-events-none z-[5]"
+      style={{
+        opacity: fanPanelsSettings.opacity,
+        filter: fanPanelsSettings.blur > 0 ? `blur(${fanPanelsSettings.blur}px)` : 'none',
+        WebkitFilter: fanPanelsSettings.blur > 0 ? `blur(${fanPanelsSettings.blur}px)` : 'none'
+      }}
+    >
       {/* Edge blur overlay - blurs content near screen edges */}
       {blurSettings.enabled && (
         <div 
@@ -325,7 +380,7 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
               className="absolute inset-0"
               style={{
                 clipPath: createWedgePath(wedge.start, wedge.end),
-                background: 'rgba(15, 23, 42, 0.45)',
+                background: `rgba(15, 23, 42, ${fanPanelsSettings.backgroundOpacity})`,
               }}
             />
             {/* Thin border lines - fade toward center */}
@@ -341,8 +396,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                   y1={(() => { const r = 120; return 50 + r * Math.sin((wedge.start * Math.PI) / 180); })()}
                   x2="50" y2="50"
                 >
-                  <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.8" />
-                  <stop offset="60%" stopColor="#0ea5e9" stopOpacity="0.2" />
+                  <stop offset="0%" stopColor="#0ea5e9" stopOpacity={fanPanelsSettings.borderIntensity} />
+                  <stop offset="60%" stopColor="#0ea5e9" stopOpacity={fanPanelsSettings.borderIntensity * 0.25} />
                   <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
                 </linearGradient>
                 <linearGradient id={`wedgeBorderLeft2_${i}`} gradientUnits="userSpaceOnUse"
@@ -350,8 +405,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                   y1={(() => { const r = 120; return 50 + r * Math.sin((wedge.end * Math.PI) / 180); })()}
                   x2="50" y2="50"
                 >
-                  <stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.8" />
-                  <stop offset="60%" stopColor="#0ea5e9" stopOpacity="0.2" />
+                  <stop offset="0%" stopColor="#0ea5e9" stopOpacity={fanPanelsSettings.borderIntensity} />
+                  <stop offset="60%" stopColor="#0ea5e9" stopOpacity={fanPanelsSettings.borderIntensity * 0.25} />
                   <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0" />
                 </linearGradient>
               </defs>
@@ -376,8 +431,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
               className="absolute inset-0"
               style={{
                 clipPath: createWedgePath(wedge.start, wedge.end),
-                boxShadow: `inset 0 0 15px rgba(139, 92, 246, 0.1)`,
-                background: `linear-gradient(${wedge.start + 45}deg, rgba(139, 92, 246, 0.08) 0%, transparent 40%)`,
+                boxShadow: `inset 0 0 ${15 * fanPanelsSettings.glowIntensity * 10}px rgba(139, 92, 246, ${fanPanelsSettings.glowOpacity})`,
+                background: `linear-gradient(${wedge.start + 45}deg, rgba(139, 92, 246, ${fanPanelsSettings.glowOpacity}) 0%, transparent 40%)`,
               }}
             />
             
@@ -500,7 +555,7 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
               className="absolute inset-0"
               style={{
                 clipPath: createWedgePath(wedge.start, wedge.end),
-                background: 'rgba(15, 23, 42, 0.45)',
+                background: `rgba(15, 23, 42, ${fanPanelsSettings.backgroundOpacity})`,
               }}
             />
             {/* Thin border lines - fade toward center */}
@@ -516,8 +571,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                   y1={(() => { const r = 120; return 50 + r * Math.sin((wedge.start * Math.PI) / 180); })()}
                   x2="50" y2="50"
                 >
-                  <stop offset="0%" stopColor={accentColor} stopOpacity="0.8" />
-                  <stop offset="60%" stopColor={accentColor} stopOpacity="0.2" />
+                  <stop offset="0%" stopColor={accentColor} stopOpacity={fanPanelsSettings.borderIntensity} />
+                  <stop offset="60%" stopColor={accentColor} stopOpacity={fanPanelsSettings.borderIntensity * 0.25} />
                   <stop offset="100%" stopColor={accentColor} stopOpacity="0" />
                 </linearGradient>
                 <linearGradient id={`wedgeBorderRight2_${i}`} gradientUnits="userSpaceOnUse"
@@ -525,8 +580,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                   y1={(() => { const r = 120; return 50 + r * Math.sin((wedge.end * Math.PI) / 180); })()}
                   x2="50" y2="50"
                 >
-                  <stop offset="0%" stopColor={accentColor} stopOpacity="0.8" />
-                  <stop offset="60%" stopColor={accentColor} stopOpacity="0.2" />
+                  <stop offset="0%" stopColor={accentColor} stopOpacity={fanPanelsSettings.borderIntensity} />
+                  <stop offset="60%" stopColor={accentColor} stopOpacity={fanPanelsSettings.borderIntensity * 0.25} />
                   <stop offset="100%" stopColor={accentColor} stopOpacity="0" />
                 </linearGradient>
               </defs>
@@ -551,8 +606,8 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
               className="absolute inset-0"
               style={{
                 clipPath: createWedgePath(wedge.start, wedge.end),
-                boxShadow: `inset 0 0 15px ${glowColor.replace('0.3', '0.15').replace('0.4', '0.2')}`,
-                background: `linear-gradient(${wedge.end - 45}deg, ${glowColor.replace('0.3', '0.1').replace('0.4', '0.15')} 0%, transparent 40%)`,
+                boxShadow: `inset 0 0 ${15 * fanPanelsSettings.glowIntensity * 10}px ${glowColor.replace('0.3', String(fanPanelsSettings.glowOpacity * 0.5)).replace('0.4', String(fanPanelsSettings.glowOpacity * 0.67))}`,
+                background: `linear-gradient(${wedge.end - 45}deg, ${glowColor.replace('0.3', String(fanPanelsSettings.glowOpacity * 0.33)).replace('0.4', String(fanPanelsSettings.glowOpacity * 0.5))} 0%, transparent 40%)`,
               }}
             />
             
