@@ -374,7 +374,8 @@ export function DecisionCard({
           className="flex items-center gap-1 text-[11px] pointer-events-none relative"
           style={{ 
             zIndex: 3,
-            color: cardBgSettings.textMode === 'dark' ? 'rgba(51, 1, 69, 0.7)' : 'rgb(100, 116, 139)'
+            color: cardBgSettings.textMode === 'dark' ? 'rgba(51, 1, 69, 0.7)' : 'rgb(100, 116, 139)',
+            fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif"
           }}
         >
           <span>⏱</span>

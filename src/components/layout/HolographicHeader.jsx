@@ -394,7 +394,7 @@ export function HolographicHeader({
               </div>
               <div className="text-left">
                 <div 
-                  className="text-sm font-semibold text-white"
+                  className="text-base font-semibold text-white"
                   style={{ fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif" }}
                 >
                   {patient?.name || 'Julia'}
@@ -427,7 +427,7 @@ export function HolographicHeader({
               aria-label={`Current week: ${currentWeek}`}
               classNames={{
                 base: "bg-white/10 border border-white/30 backdrop-blur-sm",
-                content: "text-white font-semibold"
+                content: "text-white font-semibold text-base"
               }}
               style={{
                 fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif"
