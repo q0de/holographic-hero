@@ -2,7 +2,7 @@
 // Futuristic header with polygon glow effects, patient info, week tracker, and dosage meter
 // Based on Figma design - merges visual effects with GameHUD content
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Progress, Chip, Button } from '@heroui/react'
@@ -163,6 +163,7 @@ export function HolographicHeader({
   useEffect(() => {
     setDevControlsContainer(document.getElementById('dev-controls'))
   }, [])
+
 
   // Calculate progress (inverted - we want to go DOWN to target)
   const progress = ((initialDosage - currentDosage) / (initialDosage - targetDosage)) * 100

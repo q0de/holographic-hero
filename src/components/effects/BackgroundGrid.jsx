@@ -6,26 +6,34 @@ import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 
-// Load background image settings from localStorage
+// Default background image settings - HARDCODED DEFAULTS (source of truth)
+const defaultBgImageSettings = {
+  imagePath: '/LUX_Game-Sort_Version2.png',
+  offsetX: -10,
+  offsetY: -54,
+  scale: 1.45,
+  opacity: 0.87,
+  hue: 0,
+  saturation: 100,
+  brightness: 100
+}
+
+// Load background image settings from localStorage (OPTIONAL - only for dev overrides)
 const loadBgImageSettings = () => {
-  try {
-    const saved = localStorage.getItem('bgImageSettings')
-    if (saved) {
-      return JSON.parse(saved)
+  // Only load from localStorage if explicitly enabled (for dev testing)
+  const useLocalStorage = localStorage.getItem('useBgImageLocalStorage') === 'true'
+  if (useLocalStorage) {
+    try {
+      const saved = localStorage.getItem('bgImageSettings')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        return { ...defaultBgImageSettings, ...parsed }
+      }
+    } catch (e) {
+      console.warn('Failed to load bg image settings:', e)
     }
-  } catch (e) {
-    console.warn('Failed to load bg image settings:', e)
   }
-  return {
-    imagePath: '/LUX_Game-Sort_Version2.png',
-    offsetX: -10,
-    offsetY: -54,
-    scale: 1.45,
-    opacity: 0.87,
-    hue: 0,
-    saturation: 100,
-    brightness: 100
-  }
+  return { ...defaultBgImageSettings }
 }
 
 // Save background image settings to localStorage
@@ -38,6 +46,7 @@ const saveBgImageSettings = (settings) => {
 }
 
 // Floating particle component - MORE VISIBLE
+// OPTIMIZED: Reduced default count for better performance
 function FloatingParticles({ count = 20, primaryRgb }) {
   const particles = useMemo(() => Array.from({ length: count }, (_, i) => ({
     id: i,
@@ -47,7 +56,7 @@ function FloatingParticles({ count = 20, primaryRgb }) {
     duration: 12 + Math.random() * 15,
     delay: Math.random() * 8,
     opacity: 0.4 + Math.random() * 0.5
-  })), [count])
+  })), [count, primaryRgb])
   
   return (
     <div className="absolute inset-0 overflow-hidden">
@@ -93,31 +102,22 @@ export function BackgroundGrid() {
   const [bgImageSettings, setBgImageSettings] = useState(() => loadBgImageSettings())
   
   // FanPanels (Star Burst Graphic) settings
-  const [fanPanelsSettings, setFanPanelsSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('fanPanelsSettings')
-      if (saved) return JSON.parse(saved)
-    } catch (e) {
-      console.warn('Failed to load fan panels settings:', e)
-    }
-    return {
-      opacity: 1.0,
-      backgroundOpacity: 0.4,
-      blur: 0,
-      borderIntensity: 0.8,
-      glowIntensity: 0.1,
-      glowOpacity: 0.08
-    }
-  })
+  // Default FanPanels settings - HARDCODED DEFAULTS (source of truth)
+  const defaultFanPanelsSettings = {
+    opacity: 1,
+    backgroundOpacity: 0.14,
+    blur: 0,
+    borderIntensity: 0.8,
+    glowIntensity: 0.1,
+    glowOpacity: 0.08
+  }
+
+  const [fanPanelsSettings, setFanPanelsSettings] = useState(defaultFanPanelsSettings)
   
   useEffect(() => {
     const saved = loadBgImageSettings()
     setBgImageSettings(saved)
-    
-    try {
-      const fanPanelsSaved = localStorage.getItem('fanPanelsSettings')
-      if (fanPanelsSaved) setFanPanelsSettings(JSON.parse(fanPanelsSaved))
-    } catch (e) {}
+    // FanPanels settings are now hardcoded - no localStorage loading
   }, [])
   
   const updateBgImage = (key, value) => {
@@ -129,13 +129,9 @@ export function BackgroundGrid() {
   const updateFanPanels = (key, value) => {
     const newSettings = { ...fanPanelsSettings, [key]: value }
     setFanPanelsSettings(newSettings)
-    try {
-      localStorage.setItem('fanPanelsSettings', JSON.stringify(newSettings))
-      // Dispatch custom event to notify FanPanels of the update
-      window.dispatchEvent(new CustomEvent('fanPanelsSettingsUpdated', { detail: newSettings }))
-    } catch (e) {
-      console.warn('Failed to save fan panels settings:', e)
-    }
+    // Dispatch custom event to notify FanPanels of the update (for real-time preview)
+    window.dispatchEvent(new CustomEvent('fanPanelsSettingsUpdated', { detail: newSettings }))
+    // Note: Settings are hardcoded - changes are for preview only, not persisted
   }
   
   const toggleEffect = (key) => {
@@ -332,6 +328,52 @@ export function BackgroundGrid() {
                 />
                 <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(fanPanelsSettings.glowOpacity * 100)}%</span>
               </label>
+              
+              <button 
+                onClick={() => {
+                  const code = `// Copy these values to replace the defaultBgImageSettings in BackgroundGrid.jsx
+
+const defaultBgImageSettings = {
+  imagePath: '${bgImageSettings.imagePath}',
+  offsetX: ${bgImageSettings.offsetX},
+  offsetY: ${bgImageSettings.offsetY},
+  scale: ${bgImageSettings.scale},
+  opacity: ${bgImageSettings.opacity},
+  hue: ${bgImageSettings.hue},
+  saturation: ${bgImageSettings.saturation},
+  brightness: ${bgImageSettings.brightness}
+}`
+                  console.log('=== COPY THESE VALUES TO CODE ===')
+                  console.log(code)
+                  navigator.clipboard.writeText(code)
+                  alert('Background image settings copied to clipboard!')
+                }}
+                className="w-full bg-green-600 hover:bg-green-500 rounded px-2 py-1.5 mt-2 text-[10px] font-medium"
+              >
+                💻 Copy Bg Image as Code
+              </button>
+              
+              <button 
+                onClick={() => {
+                  const code = `// Copy these values to replace the defaultFanPanelsSettings in BackgroundGrid.jsx
+
+const defaultFanPanelsSettings = {
+  opacity: ${fanPanelsSettings.opacity},
+  backgroundOpacity: ${fanPanelsSettings.backgroundOpacity},
+  blur: ${fanPanelsSettings.blur},
+  borderIntensity: ${fanPanelsSettings.borderIntensity},
+  glowIntensity: ${fanPanelsSettings.glowIntensity},
+  glowOpacity: ${fanPanelsSettings.glowOpacity}
+}`
+                  console.log('=== COPY THESE VALUES TO CODE ===')
+                  console.log(code)
+                  navigator.clipboard.writeText(code)
+                  alert('FanPanels settings copied to clipboard!')
+                }}
+                className="w-full bg-green-600 hover:bg-green-500 rounded px-2 py-1.5 mt-1 text-[10px] font-medium"
+              >
+                💻 Copy FanPanels as Code
+              </button>
             </div>
           )}
         </div>,
@@ -390,7 +432,8 @@ export function BackgroundGrid() {
         />
         
         {/* Floating Particles - MORE VISIBLE */}
-        {effects.particles && <FloatingParticles count={30} primaryRgb={c} />}
+        {/* OPTIMIZED: Reduced from 30 to 20 particles for better performance */}
+        {effects.particles && <FloatingParticles count={20} primaryRgb={c} />}
         
         {/* Animated Ambient Glow - STRONGER */}
         {effects.ambientGlow && (

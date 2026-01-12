@@ -128,50 +128,27 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
     fadeStart: 50,        // % where blur starts
   })
   
-  // Load FanPanels settings from localStorage (controlled by BackgroundGrid)
-  const [fanPanelsSettings, setFanPanelsSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('fanPanelsSettings')
-      if (saved) return JSON.parse(saved)
-    } catch (e) {
-      console.warn('Failed to load fan panels settings:', e)
-    }
-    return {
-      opacity: 1.0,
-      backgroundOpacity: 0.4,
-      blur: 0,
-      borderIntensity: 0.8,
-      glowIntensity: 0.1,
-      glowOpacity: 0.08
-    }
-  })
+  // Default FanPanels settings - HARDCODED (source of truth)
+  const defaultFanPanelsSettings = {
+    opacity: 1,
+    backgroundOpacity: 0.14,
+    blur: 0,
+    borderIntensity: 0.8,
+    glowIntensity: 0.1,
+    glowOpacity: 0.08
+  }
+
+  const [fanPanelsSettings, setFanPanelsSettings] = useState(defaultFanPanelsSettings)
   
-  // Listen for changes to fanPanelsSettings in localStorage
+  // Listen for real-time updates from BackgroundGrid controls (preview only)
   useEffect(() => {
-    const handleStorageChange = () => {
-      try {
-        const saved = localStorage.getItem('fanPanelsSettings')
-        if (saved) {
-          setFanPanelsSettings(JSON.parse(saved))
-        }
-      } catch (e) {
-        console.warn('Failed to load fan panels settings:', e)
-      }
-    }
-    
     const handleCustomEvent = (event) => {
       setFanPanelsSettings(event.detail)
     }
     
-    // Listen for custom event (immediate updates from BackgroundGrid)
     window.addEventListener('fanPanelsSettingsUpdated', handleCustomEvent)
-    // Also check localStorage periodically as fallback
-    const interval = setInterval(handleStorageChange, 200)
-    window.addEventListener('storage', handleStorageChange)
     
     return () => {
-      clearInterval(interval)
-      window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('fanPanelsSettingsUpdated', handleCustomEvent)
     }
   }, [])
