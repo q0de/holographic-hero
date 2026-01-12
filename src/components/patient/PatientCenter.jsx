@@ -342,19 +342,6 @@ export function PatientCenter({ patient, isActive, dropEffect, onDrop, onEntranc
             />
           )}
         </motion.div>
-
-        {/* Drop hint text */}
-        <motion.div
-          className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] text-center"
-          animate={{ 
-            opacity: isActive ? 1 : 0.5,
-            y: isActive ? [0, -2, 0] : 0
-          }}
-          transition={{ repeat: isActive ? Infinity : 0, duration: 1 }}
-          style={{ color: isActive ? '#0ea5e9' : '#64748b' }}
-        >
-          {isActive ? '↓ Drop here' : 'Tap card or drag to patient'}
-        </motion.div>
       </div>
     </>
   )

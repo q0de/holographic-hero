@@ -455,8 +455,11 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                     )}
                   </AnimatePresence>
                   <motion.div 
-                    className="text-base font-bold text-white leading-tight" 
-                    style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
+                    className="text-2xl font-bold text-white leading-tight" 
+                    style={{ 
+                      textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+                      fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif"
+                    }}
                     animate={(valueChanges[`med_${i}`] || floatingDeltas[`med_${i}`]) ? {
                       scale: [1, 1.2, 1],
                       color: (valueChanges[`med_${i}`] === 'up' || floatingDeltas[`med_${i}`] > 0) ? ['#ffffff', '#22c55e', '#ffffff'] : ['#ffffff', '#ef4444', '#ffffff']
@@ -638,8 +641,11 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                     )}
                   </AnimatePresence>
                   <motion.div 
-                    className={`text-base font-bold ${textColor} leading-tight`} 
-                    style={{ textShadow: '0 2px 8px rgba(0,0,0,0.9)' }}
+                    className={`text-2xl font-bold ${textColor} leading-tight`} 
+                    style={{ 
+                      textShadow: '0 2px 8px rgba(0,0,0,0.9)',
+                      fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif"
+                    }}
                     animate={(valueChanges[`lab_${i}`] || floatingDeltas[`lab_${i}`]) ? {
                       scale: [1, 1.2, 1],
                       color: (valueChanges[`lab_${i}`] === 'up' || floatingDeltas[`lab_${i}`] > 0) ? ['currentColor', '#ef4444', 'currentColor'] : ['currentColor', '#22c55e', 'currentColor']
