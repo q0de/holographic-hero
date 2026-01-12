@@ -2,10 +2,55 @@
 // Futuristic header with polygon glow effects, patient info, week tracker, and dosage meter
 // Based on Figma design - merges visual effects with GameHUD content
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Progress, Chip, Button } from '@heroui/react'
+
+// Header particles component - flowing horizontal particles
+function HeaderParticles({ count = 10 }) {
+  const particles = useMemo(() => Array.from({ length: count }, (_, i) => ({
+    id: i,
+    startX: -10 + Math.random() * 10, // Start off-screen left (some variation)
+    endX: 110, // End off-screen right
+    y: Math.random() * 100, // Random vertical position
+    size: 2 + Math.random() * 3, // 2-5px diameter
+    duration: 8 + Math.random() * 8, // 8-16 seconds
+    delay: Math.random() * 5, // Stagger start times
+    opacity: 0.5 + Math.random() * 0.4 // 0.5-0.9 opacity
+  })), [count])
+  
+  return (
+    <div 
+      className="absolute inset-0 overflow-hidden pointer-events-none"
+      style={{ zIndex: 2.1 }}
+    >
+      {particles.map(p => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+            background: `rgba(255, 255, 255, ${p.opacity})`,
+            boxShadow: `0 0 ${p.size * 2}px rgba(255, 255, 255, ${p.opacity * 0.8})`
+          }}
+          animate={{
+            x: [`${p.startX}vw`, `${p.endX}vw`],
+            opacity: [0, p.opacity, p.opacity, 0]
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: 'linear'
+          }}
+        />
+      ))}
+    </div>
+  )
+}
 
 export function HolographicHeader({
   patient,
@@ -211,6 +256,9 @@ export function HolographicHeader({
           />
         )}
         
+        {/* Header particles - flowing white glowing particles */}
+        <HeaderParticles count={10} />
+        
         {/* Header assets - sequential reveal */}
         {/* 1. Background - fades in first */}
         <motion.div 
@@ -345,7 +393,10 @@ export function HolographicHeader({
                 />
               </div>
               <div className="text-left">
-                <div className="text-sm font-semibold text-white">
+                <div 
+                  className="text-sm font-semibold text-white"
+                  style={{ fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif" }}
+                >
                   {patient?.name || 'Julia'}
                 </div>
                 <div className="text-xs text-white/60">
@@ -377,6 +428,9 @@ export function HolographicHeader({
               classNames={{
                 base: "bg-white/10 border border-white/30 backdrop-blur-sm",
                 content: "text-white font-semibold"
+              }}
+              style={{
+                fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif"
               }}
             >
               Week {currentWeek}

@@ -422,7 +422,7 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                   transform: 'translate(-50%, -50%)',
                 }}
               >
-                <div className="text-[8px] uppercase tracking-wider text-cyan-400/80 font-medium">
+                <div className="text-[8px] uppercase tracking-wider text-cyan-400/80 font-bold">
                   {med.shortName || med.name?.split(' ')[0]}
                 </div>
                 <div className="relative">
@@ -607,7 +607,7 @@ export function FanPanels({ medications = [], labs = [], interpolate, memoryDelt
                       style={{ backgroundColor: accentColor }}
                     />
                   )}
-                  <span className="text-[8px] uppercase tracking-wider font-medium" style={{ color: accentColor, opacity: 0.9 }}>
+                  <span className="text-[8px] uppercase tracking-wider font-bold" style={{ color: accentColor, opacity: 0.9 }}>
                     {lab.shortName || lab.name}
                   </span>
                 </div>
