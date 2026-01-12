@@ -179,6 +179,28 @@ export function DecisionGrid({
                     />
                     <span className="w-8 text-right text-cyan-300">{cardBgSettings.offsetY}px</span>
                   </label>
+                  
+                  <button 
+                    onClick={() => {
+                      const code = `// Copy these values to replace the defaultCardBgSettings in DecisionCard.jsx
+
+const defaultCardBgSettings = {
+  enabled: ${cardBgSettings.enabled},
+  opacity: ${cardBgSettings.opacity},
+  scale: ${cardBgSettings.scale},
+  offsetX: ${cardBgSettings.offsetX},
+  offsetY: ${cardBgSettings.offsetY},
+  textMode: '${cardBgSettings.textMode}' // 'light' or 'dark'
+}`
+                      console.log('=== COPY THESE VALUES TO CODE ===')
+                      console.log(code)
+                      navigator.clipboard.writeText(code)
+                      alert('Code defaults copied to clipboard! Paste them to replace defaultCardBgSettings in DecisionCard.jsx')
+                    }}
+                    className="w-full bg-green-600 hover:bg-green-500 rounded px-2 py-1.5 mt-2 text-[10px] font-medium"
+                  >
+                    💻 Copy as Code Defaults
+                  </button>
                 </>
               )}
             </div>

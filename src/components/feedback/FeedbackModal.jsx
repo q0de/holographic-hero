@@ -16,7 +16,7 @@ const typeConfig = {
 
 // Shared modal blur bevel settings - standard values from design (matching current controls)
 const defaultBlurSettings = {
-  backdropBlur: 12,
+  backdropBlur: 0,
   borderWidth: 1,
   borderBlur: 4,
   borderOpacity: 0.73,
@@ -24,7 +24,7 @@ const defaultBlurSettings = {
   // Background image positioning
   imageOffsetX: 0,
   imageOffsetY: 0,
-  imageScale: 1.0,
+  imageScale: 1.97,
   // White layer gradient
   whiteLayerOpacity: 0, // Start at 0 so image is visible, can be adjusted
   whiteGradientDirection: 36,
@@ -48,24 +48,29 @@ const defaultBlurSettings = {
   modalWidth: 320, // max width in pixels
   // Header size
   headerPadding: 16, // padding in pixels (py-4 = 16px)
-  headerTextSize: 16 // text size in pixels (text-base = 16px)
+  headerTextSize: 31 // text size in pixels
 }
 
-// Load settings from localStorage or use defaults
+// Load settings from localStorage (OPTIONAL - only for dev overrides)
+// The code defaults above are the source of truth for production
 const loadBlurSettings = () => {
-  try {
-    const saved = localStorage.getItem('modalBlurSettings')
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      return { ...defaultBlurSettings, ...parsed }
+  // Only load from localStorage if explicitly enabled (for dev testing)
+  const useLocalStorage = localStorage.getItem('useModalBlurLocalStorage') === 'true'
+  if (useLocalStorage) {
+    try {
+      const saved = localStorage.getItem('modalBlurSettings')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        return { ...defaultBlurSettings, ...parsed }
+      }
+    } catch (e) {
+      console.warn('Failed to load modal settings from localStorage:', e)
     }
-  } catch (e) {
-    console.warn('Failed to load modal settings from localStorage:', e)
   }
   return { ...defaultBlurSettings }
 }
 
-// Save settings to localStorage
+// Save settings to localStorage (for dev/testing only)
 const saveBlurSettings = (settings) => {
   try {
     localStorage.setItem('modalBlurSettings', JSON.stringify(settings))
@@ -150,6 +155,55 @@ export function FeedbackModal({
                   {saveIndicator && (
                     <span className="text-green-400 text-[9px] animate-pulse">✓ Saved</span>
                   )}
+                  <button
+                    onClick={() => {
+                      const code = `// Copy these values to replace the defaultBlurSettings in FeedbackModal.jsx
+
+const defaultBlurSettings = {
+  backdropBlur: ${blurSettings.backdropBlur},
+  borderWidth: ${blurSettings.borderWidth},
+  borderBlur: ${blurSettings.borderBlur},
+  borderOpacity: ${blurSettings.borderOpacity},
+  outerBorderWidth: ${blurSettings.outerBorderWidth},
+  // Background image positioning
+  imageOffsetX: ${blurSettings.imageOffsetX},
+  imageOffsetY: ${blurSettings.imageOffsetY},
+  imageScale: ${blurSettings.imageScale},
+  // White layer gradient
+  whiteLayerOpacity: ${blurSettings.whiteLayerOpacity},
+  whiteGradientDirection: ${blurSettings.whiteGradientDirection},
+  whiteGradientColor1: '${blurSettings.whiteGradientColor1}',
+  whiteGradientColor2: '${blurSettings.whiteGradientColor2}',
+  whiteGradientStop1: ${blurSettings.whiteGradientStop1},
+  whiteGradientStop2: ${blurSettings.whiteGradientStop2},
+  // Background image color adjustments
+  imageHue: ${blurSettings.imageHue},
+  imageSaturation: ${blurSettings.imageSaturation},
+  imageBrightness: ${blurSettings.imageBrightness},
+  imageOpacity: ${blurSettings.imageOpacity},
+  imageColorOverlay: '${blurSettings.imageColorOverlay}',
+  // Purple tint adjustment
+  purpleTintColor: '${blurSettings.purpleTintColor}',
+  purpleTintOpacity: ${blurSettings.purpleTintOpacity},
+  // Lab delta card background
+  labDeltaBgColor: '${blurSettings.labDeltaBgColor}',
+  labDeltaBgOpacity: ${blurSettings.labDeltaBgOpacity},
+  // Modal size
+  modalWidth: ${blurSettings.modalWidth},
+  // Header size
+  headerPadding: ${blurSettings.headerPadding},
+  headerTextSize: ${blurSettings.headerTextSize}
+}`
+                      console.log('=== COPY THESE VALUES TO CODE ===')
+                      console.log(code)
+                      navigator.clipboard.writeText(code)
+                      alert('Code defaults copied to clipboard! Paste them to replace defaultBlurSettings in FeedbackModal.jsx')
+                    }}
+                    className="text-[9px] text-green-400 hover:text-green-300 px-1"
+                    title="Copy as Code Defaults"
+                  >
+                    💻
+                  </button>
                   <button
                     onClick={() => {
                       localStorage.removeItem('modalBlurSettings')

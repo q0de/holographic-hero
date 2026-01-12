@@ -22,28 +22,28 @@ export function HolographicHeader({
 }) {
   // Header asset controls
   const [showHeaderControls, setShowHeaderControls] = useState(false)
-  const [backgroundLayerZIndex, setBackgroundLayerZIndex] = useState(40)
+  const [backgroundLayerZIndex, setBackgroundLayerZIndex] = useState(0)
   const [backgroundType, setBackgroundType] = useState('gradient') // 'gradient' or 'image'
   const [bgSettings, setBgSettings] = useState({
-    left: 0,
-    top: 0,
-    scale: 1.0,
+    left: -21,
+    top: -51,
+    scale: 1.32,
     opacity: 1,
     zIndex: 2
   })
   const [componentsSettings, setComponentsSettings] = useState({
     left: 0,
     top: 0,
-    scale: 1.0,
+    scale: 1.2,
     opacity: 1,
     zIndex: 3
   })
   const [leftSettings, setLeftSettings] = useState({
-    left: -1,
-    top: -1,
-    baseWidth: 146,
-    baseHeight: 121,
-    scale: 1.0,
+    left: -7,
+    top: -42,
+    baseWidth: 160,
+    baseHeight: 128,
+    scale: 0.92,
     opacity: 1,
     zIndex: 4
   })
@@ -66,23 +66,23 @@ export function HolographicHeader({
 
   // Info element controls
   const [patientInfoSettings, setPatientInfoSettings] = useState({
-    left: 0,
-    top: 0,
-    avatarScale: 5.0,
+    left: -1,
+    top: -61,
+    avatarScale: 4.77,
     opacity: 1
   })
 
   const [weekTrackerSettings, setWeekTrackerSettings] = useState({
-    left: 0,
-    top: 0,
-    scale: 1.0,
+    left: -145,
+    top: -27,
+    scale: 0.9,
     opacity: 1
   })
 
   const [dosageMeterSettings, setDosageMeterSettings] = useState({
-    left: 0,
-    top: 0,
-    scale: 1.0,
+    left: 44,
+    top: -73,
+    scale: 0.71,
     opacity: 1,
     fontSize: 14, // text-sm = 14px
     labelFontSize: 14, // text-sm = 14px
@@ -90,9 +90,9 @@ export function HolographicHeader({
   })
 
   const [timelineButtonSettings, setTimelineButtonSettings] = useState({
-    left: 0,
-    top: 0,
-    scale: 1.0,
+    left: -18,
+    top: -72,
+    scale: 1.08,
     opacity: 1
   })
 
@@ -101,7 +101,7 @@ export function HolographicHeader({
   }
 
   const [separatorLineSettings, setSeparatorLineSettings] = useState({
-    top: 0,
+    top: 133,
     opacity: 1,
     leftOffset: 80
   })
@@ -122,11 +122,14 @@ export function HolographicHeader({
     setDosageMeterSettings(prev => ({ ...prev, [key]: value }))
   }
 
-  // Load settings from localStorage on mount
+  // Load settings from localStorage on mount (OPTIONAL - only for dev overrides)
+  // The code defaults above are the source of truth for production
   useEffect(() => {
     try {
       const saved = localStorage.getItem('holographicHeaderSettings')
-      if (saved) {
+      // Only load if explicitly enabled via a flag (for dev testing)
+      const useLocalStorage = localStorage.getItem('useHeaderLocalStorage') === 'true'
+      if (saved && useLocalStorage) {
         const settings = JSON.parse(saved)
         if (settings.assets) {
           if (settings.assets.backgroundLayerZIndex !== undefined) {
@@ -1018,6 +1021,21 @@ export function HolographicHeader({
 
                 <button 
                   onClick={() => {
+                    const saved = localStorage.getItem('holographicHeaderSettings')
+                    if (saved) {
+                      console.log('Current saved settings:', saved)
+                      alert('Current settings logged to console. Check browser console (F12) to see them.')
+                    } else {
+                      alert('No settings found in localStorage. Your previous arrangement may have been cleared.')
+                    }
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-500 rounded px-3 py-2 mt-3 text-xs font-medium"
+                >
+                  🔍 Check Saved Settings
+                </button>
+
+                <button 
+                  onClick={() => {
                     const allSettings = {
                       assets: { 
                         backgroundLayerZIndex,
@@ -1041,11 +1059,45 @@ export function HolographicHeader({
                     localStorage.setItem('holographicHeaderSettings', JSON.stringify(allSettings))
                     alert('Settings saved to localStorage and console!')
                   }}
-                  className="w-full bg-purple-600 hover:bg-purple-500 rounded px-3 py-2 mt-3 text-xs font-medium"
+                  className="w-full bg-purple-600 hover:bg-purple-500 rounded px-3 py-2 mt-2 text-xs font-medium"
                 >
                   💾 Save Settings
                 </button>
                 
+                <button 
+                  onClick={() => {
+                    // Generate code-ready format for useState defaults
+                    const code = `// Copy these values to replace the useState defaults in HolographicHeader.jsx
+
+const [backgroundLayerZIndex, setBackgroundLayerZIndex] = useState(${backgroundLayerZIndex})
+const [backgroundType, setBackgroundType] = useState('${backgroundType}')
+
+const [bgSettings, setBgSettings] = useState(${JSON.stringify(bgSettings, null, 2).replace(/\n/g, '\n    ')})
+
+const [componentsSettings, setComponentsSettings] = useState(${JSON.stringify(componentsSettings, null, 2).replace(/\n/g, '\n    ')})
+
+const [leftSettings, setLeftSettings] = useState(${JSON.stringify(leftSettings, null, 2).replace(/\n/g, '\n    ')})
+
+const [patientInfoSettings, setPatientInfoSettings] = useState(${JSON.stringify(patientInfoSettings, null, 2).replace(/\n/g, '\n    ')})
+
+const [weekTrackerSettings, setWeekTrackerSettings] = useState(${JSON.stringify(weekTrackerSettings, null, 2).replace(/\n/g, '\n    ')})
+
+const [timelineButtonSettings, setTimelineButtonSettings] = useState(${JSON.stringify(timelineButtonSettings, null, 2).replace(/\n/g, '\n    ')})
+
+const [separatorLineSettings, setSeparatorLineSettings] = useState(${JSON.stringify(separatorLineSettings, null, 2).replace(/\n/g, '\n    ')})
+
+const [dosageMeterSettings, setDosageMeterSettings] = useState(${JSON.stringify(dosageMeterSettings, null, 2).replace(/\n/g, '\n    ')})`
+                    
+                    console.log('=== COPY THESE VALUES TO CODE ===')
+                    console.log(code)
+                    navigator.clipboard.writeText(code)
+                    alert('Code defaults copied to clipboard! Paste them to replace the useState defaults in the file.')
+                  }}
+                  className="w-full bg-green-700 hover:bg-green-600 rounded px-3 py-2 mt-2 text-xs font-medium"
+                >
+                  💻 Copy as Code Defaults
+                </button>
+
                 <button 
                   onClick={() => {
                     const allSettings = {
@@ -1067,13 +1119,55 @@ export function HolographicHeader({
                         topMargin: gameAreaTopMargin || 0
                       }
                     }
-                    console.log('All Header Settings (for code defaults):', JSON.stringify(allSettings, null, 2))
+                    console.log('All Header Settings (JSON):', JSON.stringify(allSettings, null, 2))
                     navigator.clipboard.writeText(JSON.stringify(allSettings, null, 2))
-                    alert('Settings copied to clipboard! Paste in console to see.')
+                    alert('Settings copied to clipboard as JSON!')
                   }}
                   className="w-full bg-slate-700 hover:bg-slate-600 rounded px-3 py-2 mt-2 text-xs font-medium"
                 >
-                  📋 Copy Settings
+                  📋 Copy as JSON
+                </button>
+
+                <button 
+                  onClick={async () => {
+                    try {
+                      const jsonString = await navigator.clipboard.readText()
+                      const settings = JSON.parse(jsonString)
+                      
+                      // Restore all settings
+                      if (settings.assets) {
+                        if (settings.assets.backgroundLayerZIndex !== undefined) {
+                          setBackgroundLayerZIndex(settings.assets.backgroundLayerZIndex)
+                        }
+                        if (settings.assets.backgroundType) {
+                          setBackgroundType(settings.assets.backgroundType)
+                        }
+                        if (settings.assets.bg) setBgSettings(settings.assets.bg)
+                        if (settings.assets.components) setComponentsSettings(settings.assets.components)
+                        if (settings.assets.left) setLeftSettings(settings.assets.left)
+                      }
+                      if (settings.info) {
+                        if (settings.info.patientInfo) setPatientInfoSettings(settings.info.patientInfo)
+                        if (settings.info.weekTracker) setWeekTrackerSettings(settings.info.weekTracker)
+                        if (settings.info.dosageMeter) setDosageMeterSettings(settings.info.dosageMeter)
+                        if (settings.info.timelineButton) setTimelineButtonSettings(settings.info.timelineButton)
+                        if (settings.info.separatorLine) setSeparatorLineSettings(settings.info.separatorLine)
+                      }
+                      if (settings.gameArea && settings.gameArea.topMargin !== undefined && onGameAreaTopMarginChange) {
+                        onGameAreaTopMarginChange(settings.gameArea.topMargin)
+                      }
+                      
+                      // Save to localStorage
+                      localStorage.setItem('holographicHeaderSettings', JSON.stringify(settings))
+                      alert('Settings restored from clipboard and saved!')
+                    } catch (e) {
+                      alert('Failed to restore settings. Make sure you have valid JSON in your clipboard.')
+                      console.error('Restore error:', e)
+                    }
+                  }}
+                  className="w-full bg-green-600 hover:bg-green-500 rounded px-3 py-2 mt-2 text-xs font-medium"
+                >
+                  🔄 Restore from Clipboard
                 </button>
               </motion.div>
                   )}

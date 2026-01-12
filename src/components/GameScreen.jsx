@@ -50,7 +50,7 @@ export function GameScreen() {
   const [cardAnimationKey, setCardAnimationKey] = useState(0) // Increment to re-deal cards
   const [showSpiderGraph, setShowSpiderGraph] = useState(false) // Spider graph overlay
   const patientCenterRef = useRef(null)
-  const [gameAreaTopMargin, setGameAreaTopMargin] = useState(0) // Control game area vertical position
+  const [gameAreaTopMargin, setGameAreaTopMargin] = useState(-83) // Control game area vertical position
   
   // Wrap time passage complete to trigger card re-deal animation
   const handleTimePassageWithRedeal = useCallback(() => {

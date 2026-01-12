@@ -102,7 +102,7 @@ export function BackgroundGrid() {
     }
     return {
       opacity: 1.0,
-      backgroundOpacity: 0.45,
+      backgroundOpacity: 0.4,
       blur: 0,
       borderIntensity: 0.8,
       glowIntensity: 0.1,

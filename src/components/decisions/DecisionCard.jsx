@@ -89,31 +89,35 @@ export const setWatermarkSettings = (settings) => {
   sharedWatermarkSettings = { ...sharedWatermarkSettings, ...settings }
 }
 
-// Default card background graphic settings
+// Default card background graphic settings - HARDCODED DEFAULTS (source of truth)
 const defaultCardBgSettings = {
-  enabled: false,
+  enabled: true,
   opacity: 100,
-  scale: 1.0,
-  offsetX: 0,
+  scale: 1.77,
+  offsetX: 6,
   offsetY: 0,
-  textMode: 'light' // 'light' or 'dark'
+  textMode: 'dark' // 'light' or 'dark'
 }
 
-// Load card background settings from localStorage
+// Load card background settings from localStorage (OPTIONAL - only for dev overrides)
 const loadCardBgSettings = () => {
-  try {
-    const saved = localStorage.getItem('cardBgSettings')
-    if (saved) {
-      const parsed = JSON.parse(saved)
-      return { ...defaultCardBgSettings, ...parsed }
+  // Only load from localStorage if explicitly enabled (for dev testing)
+  const useLocalStorage = localStorage.getItem('useCardBgLocalStorage') === 'true'
+  if (useLocalStorage) {
+    try {
+      const saved = localStorage.getItem('cardBgSettings')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        return { ...defaultCardBgSettings, ...parsed }
+      }
+    } catch (e) {
+      console.warn('Failed to load card bg settings:', e)
     }
-  } catch (e) {
-    console.warn('Failed to load card bg settings:', e)
   }
   return { ...defaultCardBgSettings }
 }
 
-// Save card background settings to localStorage
+// Save card background settings to localStorage (for dev/testing only)
 const saveCardBgSettings = (settings) => {
   try {
     localStorage.setItem('cardBgSettings', JSON.stringify(settings))
