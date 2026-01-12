@@ -324,8 +324,22 @@ export function DecisionCard({
           color={config.color}
           variant="flat"
           classNames={{
-            base: "h-4 px-1.5 min-w-0",
-            content: "text-[8px] font-bold tracking-wide px-0"
+            base: "h-6 px-2 min-w-0",
+            content: "text-[14px] font-bold tracking-wide px-0"
+          }}
+          style={{
+            backgroundColor: config.color === 'danger' ? 'rgba(239, 68, 68, 0.2)' :
+                            config.color === 'success' ? 'rgba(34, 197, 94, 0.2)' :
+                            config.color === 'primary' ? `rgba(${theme.primaryRgb}, 0.2)` :
+                            'rgba(148, 163, 184, 0.2)',
+            color: config.color === 'danger' ? '#ef4444' :
+                   config.color === 'success' ? '#22c55e' :
+                   config.color === 'primary' ? `rgb(${theme.primaryRgb})` :
+                   '#94a3b8',
+            borderColor: config.color === 'danger' ? 'rgba(239, 68, 68, 0.4)' :
+                         config.color === 'success' ? 'rgba(34, 197, 94, 0.4)' :
+                         config.color === 'primary' ? `rgba(${theme.primaryRgb}, 0.4)` :
+                         'rgba(148, 163, 184, 0.4)'
           }}
         >
           {config.icon}
