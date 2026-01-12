@@ -102,6 +102,35 @@ export function FeedbackModal({
   const [devControlsContainer, setDevControlsContainer] = useState(null)
   const [saveIndicator, setSaveIndicator] = useState(false)
   
+  // Button placement settings - hardcoded defaults
+  const [buttonSettings, setButtonSettings] = useState({
+    marginTop: 0,
+    marginBottom: -16,
+    marginLeft: 16,
+    marginRight: 16,
+    paddingTop: 24,
+    paddingBottom: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    minHeight: 64,
+    buttonHeight: 192,
+    modalBottomPadding: 8,
+    textOffsetY: 31,
+    textSize: 32
+  })
+  
+  // Load button settings from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('feedbackModalButtonSettings')
+      if (saved) {
+        setButtonSettings(JSON.parse(saved))
+      }
+    } catch (e) {
+      console.warn('Failed to load button settings:', e)
+    }
+  }, [])
+  
   useEffect(() => {
     setDevControlsContainer(document.getElementById('dev-controls'))
   }, [])
@@ -122,6 +151,16 @@ export function FeedbackModal({
     // Show save indicator briefly
     setSaveIndicator(true)
     setTimeout(() => setSaveIndicator(false), 500)
+  }
+  
+  const updateButtonSetting = (key, value) => {
+    const newSettings = { ...buttonSettings, [key]: value }
+    setButtonSettings(newSettings)
+    try {
+      localStorage.setItem('feedbackModalButtonSettings', JSON.stringify(newSettings))
+    } catch (e) {
+      console.warn('Failed to save button settings:', e)
+    }
   }
 
   return (
@@ -551,6 +590,118 @@ const defaultBlurSettings = {
               </label>
             </div>
           )}
+          
+          <div className="text-cyan-400 font-bold mt-3 mb-2 text-[11px] border-t border-slate-700 pt-2">Continue Button</div>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Margin Top</span>
+            <input
+              type="range" min="0" max="32" step="1" value={buttonSettings.marginTop}
+              onChange={(e) => updateButtonSetting('marginTop', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.marginTop}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Margin Bottom</span>
+            <input
+              type="range" min="-16" max="16" step="1" value={buttonSettings.marginBottom}
+              onChange={(e) => updateButtonSetting('marginBottom', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.marginBottom}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Margin Left</span>
+            <input
+              type="range" min="-16" max="16" step="1" value={buttonSettings.marginLeft}
+              onChange={(e) => updateButtonSetting('marginLeft', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.marginLeft}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Margin Right</span>
+            <input
+              type="range" min="-16" max="16" step="1" value={buttonSettings.marginRight}
+              onChange={(e) => updateButtonSetting('marginRight', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.marginRight}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Padding Top</span>
+            <input
+              type="range" min="8" max="24" step="1" value={buttonSettings.paddingTop}
+              onChange={(e) => updateButtonSetting('paddingTop', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.paddingTop}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Padding Bottom</span>
+            <input
+              type="range" min="8" max="24" step="1" value={buttonSettings.paddingBottom}
+              onChange={(e) => updateButtonSetting('paddingBottom', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.paddingBottom}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Min Height</span>
+            <input
+              type="range" min="32" max="64" step="1" value={buttonSettings.minHeight}
+              onChange={(e) => updateButtonSetting('minHeight', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.minHeight}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Button Height</span>
+            <input
+              type="range" min="48" max="200" step="1" value={buttonSettings.buttonHeight}
+              onChange={(e) => updateButtonSetting('buttonHeight', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.buttonHeight}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Text Offset Y</span>
+            <input
+              type="range" min="-50" max="50" step="1" value={buttonSettings.textOffsetY}
+              onChange={(e) => updateButtonSetting('textOffsetY', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.textOffsetY}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Text Size</span>
+            <input
+              type="range" min="12" max="32" step="1" value={buttonSettings.textSize}
+              onChange={(e) => updateButtonSetting('textSize', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.textSize}px</span>
+          </label>
+          
+          <label className="flex justify-between items-center gap-1 mb-2">
+            <span className="text-slate-300 text-[10px]">Modal Bottom</span>
+            <input
+              type="range" min="0" max="80" step="1" value={buttonSettings.modalBottomPadding}
+              onChange={(e) => updateButtonSetting('modalBottomPadding', Number(e.target.value))}
+              className="flex-1 h-1.5 accent-cyan-500"
+            />
+            <span className="w-12 text-right text-cyan-300 text-[9px]">{buttonSettings.modalBottomPadding}px</span>
+          </label>
         </div>,
         devControlsContainer
       )}
@@ -581,7 +732,8 @@ const defaultBlurSettings = {
               WebkitBackdropFilter: `blur(${blurSettings.backdropBlur}px)`,
               border: `${blurSettings.borderWidth}px solid white`,
               boxShadow: '0px 16px 30px 0px #061124',
-              zIndex: 10
+              zIndex: 10,
+              paddingBottom: `${buttonSettings.modalBottomPadding}px`
             }}
           >
             {/* Blurred background image - behind modal content, cropped by modal */}
@@ -721,7 +873,7 @@ const defaultBlurSettings = {
             </div>
 
             {/* Body */}
-            <div className="p-4 relative z-10">
+            <div className="p-4 pb-6 relative z-10">
               {/* Description */}
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
@@ -759,16 +911,97 @@ const defaultBlurSettings = {
               )}
             </div>
 
-            {/* Footer */}
-            <div className="px-4 pb-4 relative z-10">
-              <Button
-                color={config.color}
-                variant="solid"
-                onPress={onClose}
-                className="w-full font-medium"
+            {/* Footer - Button positioned to show full image including glow */}
+            <div 
+              className="relative z-10"
+              style={{
+                marginTop: `${buttonSettings.marginTop}px`,
+                marginBottom: `${buttonSettings.marginBottom}px`,
+                marginLeft: `${buttonSettings.marginLeft}px`,
+                marginRight: `${buttonSettings.marginRight}px`,
+                padding: '0'
+              }}
+            >
+              {/* Button uses the full PNG as background - positioned to show complete image */}
+              <motion.div
+                onClick={onClose}
+                className="w-full cursor-pointer relative"
+                style={{
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: `${buttonSettings.buttonHeight}px`,
+                  minHeight: `${buttonSettings.minHeight}px`,
+                  paddingTop: `${buttonSettings.paddingTop}px`,
+                  paddingBottom: `${buttonSettings.paddingBottom}px`
+                }}
+                whileHover={{ 
+                  scale: 1.02,
+                  filter: 'brightness(1.1)'
+                }}
+                whileTap={{ 
+                  scale: 0.97,
+                  filter: 'brightness(0.95)'
+                }}
+                transition={{ 
+                  type: 'spring', 
+                  stiffness: 400, 
+                  damping: 20 
+                }}
               >
-                Continue
-              </Button>
+                {/* Button background image */}
+                <motion.img 
+                  src="/CAH-button.png" 
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-contain rounded-b-[24px]"
+                  style={{
+                    objectPosition: 'center bottom',
+                    pointerEvents: 'none'
+                  }}
+                  initial={{ opacity: 0.9 }}
+                  animate={{ 
+                    opacity: [0.9, 1, 0.9],
+                  }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 2,
+                    ease: 'easeInOut'
+                  }}
+                />
+                {/* Text overlay with glow */}
+                <motion.span 
+                  style={{ 
+                    fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif",
+                    color: '#ffffff',
+                    position: 'relative',
+                    zIndex: 10,
+                    textShadow: `
+                      0 0 10px rgba(255, 255, 255, 0.8),
+                      0 0 20px rgba(14, 165, 233, 0.6),
+                      0 0 30px rgba(14, 165, 233, 0.4),
+                      0 2px 4px rgba(0, 0, 0, 0.5)
+                    `,
+                    fontWeight: 'bold',
+                    fontSize: `${buttonSettings.textSize}px`,
+                    transform: `translateY(${buttonSettings.textOffsetY}px)`
+                  }}
+                  animate={{
+                    textShadow: [
+                      '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(14, 165, 233, 0.6), 0 0 30px rgba(14, 165, 233, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5)',
+                      '0 0 15px rgba(255, 255, 255, 1), 0 0 25px rgba(14, 165, 233, 0.8), 0 0 40px rgba(14, 165, 233, 0.6), 0 2px 4px rgba(0, 0, 0, 0.5)',
+                      '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(14, 165, 233, 0.6), 0 0 30px rgba(14, 165, 233, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5)'
+                    ]
+                  }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 2,
+                    ease: 'easeInOut'
+                  }}
+                >
+                  Continue
+                </motion.span>
+              </motion.div>
             </div>
           </motion.div>
         </motion.div>
