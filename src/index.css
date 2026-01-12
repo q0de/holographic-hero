@@ -5,6 +5,15 @@
    Diegetic Radial UI / Holographic Scanner
    ============================================ */
 
+/* RIFT Font - Bold Italic */
+@font-face {
+  font-family: 'Rift';
+  src: url('/Rift-Bold-Italic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 :root {
   /* Core palette */
   --primary-500: #0ea5e9;
@@ -46,7 +55,7 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
   color: var(--text-bright);
   -webkit-font-smoothing: antialiased;

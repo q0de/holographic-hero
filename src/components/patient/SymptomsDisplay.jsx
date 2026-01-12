@@ -33,7 +33,12 @@ export function SymptomsDisplay({ symptoms = [], interpolate, compact = false })
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="w-full cursor-pointer"
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsExpanded(!isExpanded)
+        }}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
         style={{
           background: hasAlert 
             ? 'rgba(239, 68, 68, 0.15)' 
@@ -44,7 +49,11 @@ export function SymptomsDisplay({ symptoms = [], interpolate, compact = false })
           padding: '6px 10px',
           boxShadow: hasSymptoms 
             ? '0 0 20px rgba(239, 68, 68, 0.2)' 
-            : 'none'
+            : 'none',
+          pointerEvents: 'auto',
+          position: 'relative',
+          zIndex: 100,
+          isolation: 'isolate'
         }}
       >
         {/* Horizontal layout */}

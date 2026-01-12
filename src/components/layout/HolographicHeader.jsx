@@ -23,6 +23,7 @@ export function HolographicHeader({
   // Header asset controls
   const [showHeaderControls, setShowHeaderControls] = useState(false)
   const [backgroundLayerZIndex, setBackgroundLayerZIndex] = useState(40)
+  const [backgroundType, setBackgroundType] = useState('gradient') // 'gradient' or 'image'
   const [bgSettings, setBgSettings] = useState({
     left: 0,
     top: 0,
@@ -131,6 +132,9 @@ export function HolographicHeader({
           if (settings.assets.backgroundLayerZIndex !== undefined) {
             setBackgroundLayerZIndex(settings.assets.backgroundLayerZIndex)
           }
+          if (settings.assets.backgroundType) {
+            setBackgroundType(settings.assets.backgroundType)
+          }
           if (settings.assets.bg) setBgSettings(settings.assets.bg)
           if (settings.assets.components) setComponentsSettings(settings.assets.components)
           if (settings.assets.left) setLeftSettings(settings.assets.left)
@@ -178,17 +182,33 @@ export function HolographicHeader({
           height: '250px' // Fixed height for background assets
         }}
       >
-        {/* Background gradient - purple to transparent */}
-        <div 
-          className="absolute inset-0 -bottom-4"
-          style={{
-            background: 'linear-gradient(180deg, rgba(138, 100, 220, 0.95) 0%, rgba(100, 70, 200, 0.8) 40%, rgba(80, 50, 180, 0.5) 70%, transparent 100%)',
-            zIndex: 1
-          }}
-        />
+        {/* Background - gradient or image */}
+        {backgroundType === 'gradient' ? (
+          <div 
+            className="absolute inset-0 -bottom-4"
+            style={{
+              background: 'linear-gradient(180deg, rgba(138, 100, 220, 0.95) 0%, rgba(100, 70, 200, 0.8) 40%, rgba(80, 50, 180, 0.5) 70%, transparent 100%)',
+              zIndex: 1
+            }}
+          />
+        ) : (
+          <motion.div
+            className="absolute inset-0 -bottom-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            style={{
+              zIndex: 1,
+              backgroundImage: 'url(/header-assets/CAH_background.png)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+          />
+        )}
         
         {/* Header assets - sequential reveal */}
-        {/* 1. Background asset - appears first */}
+        {/* 1. Background - fades in first */}
         <motion.div 
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
@@ -198,7 +218,7 @@ export function HolographicHeader({
             y: bgSettings.top,
             scale: bgSettings.scale
           }}
-          transition={{ duration: 0.5, delay: 0 }}
+          transition={{ duration: 0.6, delay: 0 }}
           style={{
             transformOrigin: 'center center',
             zIndex: bgSettings.zIndex
@@ -211,7 +231,7 @@ export function HolographicHeader({
           />
         </motion.div>
 
-        {/* 2. Components asset - appears second */}
+        {/* 2. Components - fades in second */}
         <motion.div 
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
@@ -221,7 +241,7 @@ export function HolographicHeader({
             y: componentsSettings.top,
             scale: componentsSettings.scale
           }}
-          transition={{ duration: 0.5, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
           style={{
             transformOrigin: 'center center',
             zIndex: componentsSettings.zIndex
@@ -234,12 +254,15 @@ export function HolographicHeader({
           />
         </motion.div>
 
-        {/* 3. Left asset - appears third */}
+        {/* 3. Left asset - slides in from left */}
         <motion.div 
           className="absolute pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: leftSettings.opacity }}
-          transition={{ duration: 0.5, delay: 0.6 }}
+          initial={{ opacity: 0, x: -200 }}
+          animate={{ 
+            opacity: leftSettings.opacity,
+            x: 0
+          }}
+          transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
           style={{
             left: `${leftSettings.left}px`,
             top: `${leftSettings.top}px`,
@@ -250,7 +273,7 @@ export function HolographicHeader({
         >
           <img 
             alt="" 
-            className="block w-full h-full max-w-none"
+            className="block w-full h-full max-w-none object-contain"
             src="/header-assets/CAH_header-left-asset.png"
           />
         </motion.div>
@@ -488,6 +511,19 @@ export function HolographicHeader({
                 {/* Background Layer Z-Index Control */}
                 <div className="border-b border-slate-700 pb-3 mb-3">
                   <div className="text-purple-300 font-semibold mb-2 text-xs">Background Layer</div>
+                  
+                  <label className="flex justify-between items-center gap-2 mb-2">
+                    <span className="text-slate-300">Type</span>
+                    <select
+                      value={backgroundType}
+                      onChange={(e) => setBackgroundType(e.target.value)}
+                      className="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs text-white flex-1"
+                    >
+                      <option value="gradient">Gradient</option>
+                      <option value="image">Image</option>
+                    </select>
+                  </label>
+                  
                   <label className="flex justify-between items-center gap-2">
                     <span className="text-slate-300">Z-Index</span>
                     <input 
@@ -985,6 +1021,7 @@ export function HolographicHeader({
                     const allSettings = {
                       assets: { 
                         backgroundLayerZIndex,
+                        backgroundType,
                         bg: bgSettings, 
                         components: componentsSettings, 
                         left: leftSettings 
@@ -1014,6 +1051,7 @@ export function HolographicHeader({
                     const allSettings = {
                       assets: { 
                         backgroundLayerZIndex,
+                        backgroundType,
                         bg: bgSettings, 
                         components: componentsSettings, 
                         left: leftSettings 

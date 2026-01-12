@@ -87,7 +87,8 @@ export function TimePassage({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="w-full max-w-[320px] rounded-[24px] overflow-hidden relative"
+            className="w-full rounded-[24px] overflow-hidden relative"
+            style={{ maxWidth: `${blurSettings.modalWidth}px` }}
             style={{
               backgroundImage: `
                 linear-gradient(rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%),
@@ -111,18 +112,19 @@ export function TimePassage({
               />
             )}
             {/* Header */}
-            <div className="px-4 py-3 border-b border-white/10 text-center relative z-10">
+            <div className="px-4 border-b border-white/10 text-center relative z-10" style={{ paddingTop: `${blurSettings.headerPadding}px`, paddingBottom: `${blurSettings.headerPadding}px` }}>
               <span 
-                className="text-sm relative uppercase"
+                className="relative uppercase"
                 style={{
                   color: '#330145',
-                  fontFamily: "'Rift', 'Rift Bold Italic', 'Arial Black', 'Impact', sans-serif",
+                  fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif",
                   fontWeight: 700,
                   fontStyle: 'italic',
                   letterSpacing: '0.1em',
                   filter: 'blur(0.5px)',
                   opacity: 0.9,
-                  textShadow: '0 0 8px rgba(51, 1, 69, 0.5), 0 0 16px rgba(139, 92, 246, 0.3)'
+                  textShadow: '0 0 8px rgba(51, 1, 69, 0.5), 0 0 16px rgba(139, 92, 246, 0.3)',
+                  fontSize: `${blurSettings.headerTextSize}px`
                 }}
               >
                 {headerText}

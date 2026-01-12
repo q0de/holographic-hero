@@ -89,6 +89,49 @@ export const setWatermarkSettings = (settings) => {
   sharedWatermarkSettings = { ...sharedWatermarkSettings, ...settings }
 }
 
+// Default card background graphic settings
+const defaultCardBgSettings = {
+  enabled: false,
+  opacity: 100,
+  scale: 1.0,
+  offsetX: 0,
+  offsetY: 0,
+  textMode: 'light' // 'light' or 'dark'
+}
+
+// Load card background settings from localStorage
+const loadCardBgSettings = () => {
+  try {
+    const saved = localStorage.getItem('cardBgSettings')
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      return { ...defaultCardBgSettings, ...parsed }
+    }
+  } catch (e) {
+    console.warn('Failed to load card bg settings:', e)
+  }
+  return { ...defaultCardBgSettings }
+}
+
+// Save card background settings to localStorage
+const saveCardBgSettings = (settings) => {
+  try {
+    localStorage.setItem('cardBgSettings', JSON.stringify(settings))
+  } catch (e) {
+    console.warn('Failed to save card bg settings:', e)
+  }
+}
+
+// Shared card background settings state (outside component to persist)
+let sharedCardBgSettings = loadCardBgSettings()
+
+// Export functions to get/set card background settings from outside
+export const getCardBgSettings = () => sharedCardBgSettings
+export const setCardBgSettings = (settings) => {
+  sharedCardBgSettings = { ...sharedCardBgSettings, ...settings }
+  saveCardBgSettings(sharedCardBgSettings)
+}
+
 export function DecisionCard({
   title,
   description,
@@ -121,6 +164,9 @@ export function DecisionCard({
   
   // Get current watermark settings from shared state
   const watermarkSettings = sharedWatermarkSettings
+  
+  // Get current card background settings from shared state
+  const cardBgSettings = sharedCardBgSettings
   
   // Shimmer effect - once on entry, then rarely
   useEffect(() => {
@@ -207,11 +253,31 @@ export function DecisionCard({
         touchAction: 'none'
       }}
     >
+      {/* Background graphic - same as modal */}
+      {cardBgSettings.enabled && (
+        <img 
+          alt="Background" 
+          src="/CAH_modal.png"
+          className="absolute inset-0 w-full h-full"
+          style={{ 
+            objectFit: 'cover',
+            objectPosition: `calc(50% + ${cardBgSettings.offsetX}px) calc(50% + ${cardBgSettings.offsetY}px)`,
+            opacity: cardBgSettings.opacity / 100,
+            transform: `scale(${cardBgSettings.scale})`,
+            zIndex: 0
+          }}
+          onError={(e) => {
+            console.error('Failed to load card background image:', e.target.src)
+          }}
+        />
+      )}
+      
       {/* Glass panel glow overlay */}
       <div 
         className="absolute inset-0 pointer-events-none rounded-[20px]"
         style={{
           boxShadow: config.innerGlow,
+          zIndex: 1
         }}
       />
       
@@ -227,6 +293,7 @@ export function DecisionCard({
           opacity: watermarkSettings.opacity,
           lineHeight: 1,
           transform: `rotate(${watermarkSettings.rotation}deg)`,
+          zIndex: 2
         }}
       >
         {config.watermark}
@@ -262,18 +329,36 @@ export function DecisionCard({
       </div>
 
       {/* Title */}
-      <div className="text-[11px] font-semibold text-white mb-0.5 pr-6 leading-tight pointer-events-none line-clamp-2">
+      <div 
+        className={`text-[11px] font-semibold mb-0.5 pr-6 leading-tight pointer-events-none line-clamp-2 relative`}
+        style={{ 
+          zIndex: 3,
+          color: cardBgSettings.textMode === 'dark' ? '#330145' : '#ffffff'
+        }}
+      >
         {title}
       </div>
 
       {/* Description */}
-      <div className="text-[10px] text-slate-400 leading-tight mb-1.5 pointer-events-none line-clamp-2">
+      <div 
+        className="text-[10px] leading-tight mb-1.5 pointer-events-none line-clamp-2 relative"
+        style={{ 
+          zIndex: 3,
+          color: cardBgSettings.textMode === 'dark' ? 'rgba(51, 1, 69, 0.8)' : 'rgb(148, 163, 184)'
+        }}
+      >
         {description}
       </div>
 
       {/* Duration */}
       {duration && (
-        <div className="flex items-center gap-1 text-[9px] text-slate-500 pointer-events-none">
+        <div 
+          className="flex items-center gap-1 text-[9px] pointer-events-none relative"
+          style={{ 
+            zIndex: 3,
+            color: cardBgSettings.textMode === 'dark' ? 'rgba(51, 1, 69, 0.7)' : 'rgb(100, 116, 139)'
+          }}
+        >
           <span>⏱</span>
           <span>{duration}w</span>
         </div>
@@ -286,12 +371,13 @@ export function DecisionCard({
           e.stopPropagation()
           onTap?.(optionKey)
         }}
-        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        style={{ zIndex: 10 }}
         aria-label={`Select: ${title}`}
       />
       
       {/* Drag hint */}
-      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5 pointer-events-none">
+      <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5 pointer-events-none" style={{ zIndex: 3 }}>
         <div className="w-0.5 h-0.5 rounded-full bg-slate-600"></div>
         <div className="w-0.5 h-0.5 rounded-full bg-slate-600"></div>
         <div className="w-0.5 h-0.5 rounded-full bg-slate-600"></div>

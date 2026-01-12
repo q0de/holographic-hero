@@ -40,7 +40,15 @@ const defaultBlurSettings = {
   imageColorOverlay: 'rgba(0, 0, 0, 0)',
   // Purple tint adjustment
   purpleTintColor: 'rgba(139, 92, 246, 1.0)', // purple-500
-  purpleTintOpacity: 0
+  purpleTintOpacity: 0,
+  // Lab delta card background
+  labDeltaBgColor: 'rgba(255, 255, 255, 1.0)', // white
+  labDeltaBgOpacity: 0.3, // opacity for white background
+  // Modal size
+  modalWidth: 320, // max width in pixels
+  // Header size
+  headerPadding: 16, // padding in pixels (py-4 = 16px)
+  headerTextSize: 16 // text size in pixels (text-base = 16px)
 }
 
 // Load settings from localStorage or use defaults
@@ -115,7 +123,7 @@ export function FeedbackModal({
     <>
       {/* Modal Blur Controls - rendered outside phone frame - only when modal is open */}
       {devControlsContainer && isOpen && createPortal(
-        <div className="relative">
+        <div className="relative" style={{ order: -100 }}>
           <button
             onClick={() => setShowControls(!showControls)}
             className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-lg border border-slate-600 transition-colors"
@@ -127,12 +135,13 @@ export function FeedbackModal({
           
           {showControls && (
             <div 
-              className="absolute left-10 bg-slate-900 rounded-lg text-[10px] text-white border border-slate-600 shadow-xl overflow-y-auto"
+              className="absolute left-10 top-0 bg-slate-900 rounded-lg text-[10px] text-white border border-slate-600 shadow-xl overflow-y-auto"
               style={{ 
-                width: '200px', 
-                padding: '8px',
-                top: '20px',
-                maxHeight: 'calc(100vh - 40px)'
+                width: '220px', 
+                maxHeight: 'calc(100vh - 60px)',
+                zIndex: 10000,
+                padding: '10px',
+                paddingBottom: '24px'
               }}
             >
               <div className="flex justify-between items-center mb-1">
@@ -422,6 +431,70 @@ export function FeedbackModal({
                 />
                 <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(blurSettings.purpleTintOpacity * 100)}%</span>
               </label>
+              
+              <div className="text-purple-400 font-bold mt-2 mb-1 text-[11px]">Modal Size</div>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Width</span>
+                <input
+                  type="range" min="280" max="600" step="10" value={blurSettings.modalWidth}
+                  onChange={(e) => updateBlur('modalWidth', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{blurSettings.modalWidth}px</span>
+              </label>
+              
+              <div className="text-purple-400 font-bold mt-2 mb-1 text-[11px]">Header</div>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Padding</span>
+                <input
+                  type="range" min="8" max="32" step="4" value={blurSettings.headerPadding}
+                  onChange={(e) => updateBlur('headerPadding', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{blurSettings.headerPadding}px</span>
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Text Size</span>
+                <input
+                  type="range" min="12" max="48" step="1" value={blurSettings.headerTextSize}
+                  onChange={(e) => updateBlur('headerTextSize', Number(e.target.value))}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{blurSettings.headerTextSize}px</span>
+              </label>
+              
+              <div className="text-purple-400 font-bold mt-2 mb-1 text-[11px]">Lab Delta Cards</div>
+              
+              <label className="flex justify-between items-center gap-1 mb-1">
+                <span className="text-slate-300 text-[10px]">Bg Color</span>
+                <input
+                  type="color"
+                  value={blurSettings.labDeltaBgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)? 
+                    `#${parseInt(blurSettings.labDeltaBgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)[1]).toString(16).padStart(2,'0')}${parseInt(blurSettings.labDeltaBgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)[2]).toString(16).padStart(2,'0')}${parseInt(blurSettings.labDeltaBgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)[3]).toString(16).padStart(2,'0')}` : '#ffffff'}
+                  onChange={(e) => {
+                    const hex = e.target.value
+                    const r = parseInt(hex.slice(1, 3), 16)
+                    const g = parseInt(hex.slice(3, 5), 16)
+                    const b = parseInt(hex.slice(5, 7), 16)
+                    const opacity = blurSettings.labDeltaBgOpacity || 0.3
+                    updateBlur('labDeltaBgColor', `rgba(${r}, ${g}, ${b}, 1.0)`)
+                  }}
+                  className="w-7 h-5 rounded border border-slate-600"
+                />
+              </label>
+              
+              <label className="flex justify-between items-center gap-1 mb-2">
+                <span className="text-slate-300 text-[10px]">Bg Opacity</span>
+                <input
+                  type="range" min="0" max="100" value={blurSettings.labDeltaBgOpacity * 100}
+                  onChange={(e) => updateBlur('labDeltaBgOpacity', Number(e.target.value) / 100)}
+                  className="flex-1 h-1.5 accent-purple-500"
+                />
+                <span className="w-12 text-right text-purple-300 text-[9px]">{Math.round(blurSettings.labDeltaBgOpacity * 100)}%</span>
+              </label>
             </div>
           )}
         </div>,
@@ -446,8 +519,9 @@ export function FeedbackModal({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="w-full max-w-[320px] rounded-[24px] overflow-hidden relative"
+            className="w-full rounded-[24px] overflow-hidden relative"
             style={{
+              maxWidth: `${blurSettings.modalWidth}px`,
               background: 'transparent', // Transparent so background image shows through
               backdropFilter: `blur(${blurSettings.backdropBlur}px)`,
               WebkitBackdropFilter: `blur(${blurSettings.backdropBlur}px)`,
@@ -477,19 +551,13 @@ export function FeedbackModal({
             >
               <img 
                 alt="Background" 
-                src="http://localhost:3845/assets/542f4007baaaa57dbbe0a22987485690b0d0a702.png"
-                className="absolute"
+                src="/CAH_modal.png"
+                className="absolute inset-0 w-full h-full"
                 style={{ 
-                  width: `${100 * blurSettings.imageScale}%`,
-                  height: `${100 * blurSettings.imageScale}%`,
-                  minWidth: '100%',
-                  minHeight: '100%',
                   objectFit: 'cover',
-                  objectPosition: 'center',
-                  left: `calc(50% + ${blurSettings.imageOffsetX}px)`,
-                  top: `calc(50% + ${blurSettings.imageOffsetY}px)`,
-                  transform: 'translate(-50%, -50%)',
-                  opacity: blurSettings.imageOpacity / 100
+                  objectPosition: `calc(50% + ${blurSettings.imageOffsetX}px) calc(50% + ${blurSettings.imageOffsetY}px)`,
+                  opacity: blurSettings.imageOpacity / 100,
+                  transform: `scale(${blurSettings.imageScale})`
                 }}
                 onError={(e) => {
                   console.error('Failed to load background image:', e.target.src)
@@ -569,7 +637,7 @@ export function FeedbackModal({
               />
             )}
             {/* Header */}
-            <div className="px-4 py-3 border-b border-white/10 flex items-center gap-2 relative z-10">
+            <div className="px-4 border-b border-white/10 flex items-center gap-2 relative z-10" style={{ paddingTop: `${blurSettings.headerPadding}px`, paddingBottom: `${blurSettings.headerPadding}px` }}>
               {config.icon && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -581,16 +649,17 @@ export function FeedbackModal({
                 </motion.span>
               )}
               <span 
-                className="text-sm relative uppercase"
+                className="relative uppercase"
                 style={{
                   color: '#330145',
-                  fontFamily: "'Rift', 'Rift Bold Italic', 'Arial Black', 'Impact', sans-serif",
+                  fontFamily: "'Rift', 'Arial Black', 'Impact', sans-serif",
                   fontWeight: 700,
                   fontStyle: 'italic',
                   letterSpacing: '0.1em',
                   filter: 'blur(0.5px)',
                   opacity: 0.9,
-                  textShadow: '0 0 8px rgba(51, 1, 69, 0.5), 0 0 16px rgba(139, 92, 246, 0.3)'
+                  textShadow: '0 0 8px rgba(51, 1, 69, 0.5), 0 0 16px rgba(139, 92, 246, 0.3)',
+                  fontSize: `${blurSettings.headerTextSize}px`
                 }}
               >
                 {interpolate ? interpolate(title) : title}
@@ -627,6 +696,8 @@ export function FeedbackModal({
                         before={interpolate ? interpolate(delta.before?.toString()) : delta.before}
                         after={interpolate ? interpolate(delta.after?.toString()) : delta.after}
                         unit={delta.unit}
+                        bgColor={blurSettings.labDeltaBgColor}
+                        bgOpacity={blurSettings.labDeltaBgOpacity}
                       />
                     </motion.div>
                   ))}

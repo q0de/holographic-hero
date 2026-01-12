@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import DecisionCard, { getWatermarkSettings, setWatermarkSettings } from './DecisionCard'
+import DecisionCard, { getWatermarkSettings, setWatermarkSettings, getCardBgSettings, setCardBgSettings } from './DecisionCard'
 
 // Card dealing animation - slides in from below with rotation
 const cardVariants = {
@@ -41,11 +41,18 @@ export function DecisionGrid({
   const optionEntries = Object.entries(options)
   const [showWatermarkControls, setShowWatermarkControls] = useState(false)
   const [watermarkSettings, setLocalWatermarkSettings] = useState(getWatermarkSettings())
+  const [cardBgSettings, setLocalCardBgSettings] = useState(getCardBgSettings())
   
   const updateWatermark = (key, value) => {
     const newSettings = { ...watermarkSettings, [key]: value }
     setLocalWatermarkSettings(newSettings)
     setWatermarkSettings(newSettings)
+  }
+  
+  const updateCardBg = (key, value) => {
+    const newSettings = { ...cardBgSettings, [key]: value }
+    setLocalCardBgSettings(newSettings)
+    setCardBgSettings(newSettings)
   }
   
   // Get portal container after mount
@@ -106,6 +113,74 @@ export function DecisionGrid({
                 />
                 <span className="w-8 text-right text-cyan-300">{watermarkSettings.rotation}°</span>
               </label>
+              
+              <div className="text-cyan-400 font-bold mt-3 mb-2">Background Graphic</div>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Text Mode</span>
+                <select
+                  value={cardBgSettings.textMode}
+                  onChange={(e) => updateCardBg('textMode', e.target.value)}
+                  className="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-[9px] text-white"
+                >
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </label>
+              
+              <label className="flex justify-between items-center gap-2">
+                <span className="text-slate-300">Enabled</span>
+                <input
+                  type="checkbox"
+                  checked={cardBgSettings.enabled}
+                  onChange={(e) => updateCardBg('enabled', e.target.checked)}
+                  className="w-4 h-4 accent-cyan-500"
+                />
+              </label>
+              
+              {cardBgSettings.enabled && (
+                <>
+                  <label className="flex justify-between items-center gap-2">
+                    <span className="text-slate-300">Opacity</span>
+                    <input
+                      type="range" min="0" max="100" step="1" value={cardBgSettings.opacity}
+                      onChange={(e) => updateCardBg('opacity', Number(e.target.value))}
+                      className="flex-1 h-2 accent-cyan-500"
+                    />
+                    <span className="w-8 text-right text-cyan-300">{cardBgSettings.opacity}%</span>
+                  </label>
+                  
+                  <label className="flex justify-between items-center gap-2">
+                    <span className="text-slate-300">Scale</span>
+                    <input
+                      type="range" min="50" max="200" value={cardBgSettings.scale * 100}
+                      onChange={(e) => updateCardBg('scale', Number(e.target.value) / 100)}
+                      className="flex-1 h-2 accent-cyan-500"
+                    />
+                    <span className="w-8 text-right text-cyan-300">{Math.round(cardBgSettings.scale * 100)}%</span>
+                  </label>
+                  
+                  <label className="flex justify-between items-center gap-2">
+                    <span className="text-slate-300">Offset X</span>
+                    <input
+                      type="range" min="-50" max="50" value={cardBgSettings.offsetX}
+                      onChange={(e) => updateCardBg('offsetX', Number(e.target.value))}
+                      className="flex-1 h-2 accent-cyan-500"
+                    />
+                    <span className="w-8 text-right text-cyan-300">{cardBgSettings.offsetX}px</span>
+                  </label>
+                  
+                  <label className="flex justify-between items-center gap-2">
+                    <span className="text-slate-300">Offset Y</span>
+                    <input
+                      type="range" min="-50" max="50" value={cardBgSettings.offsetY}
+                      onChange={(e) => updateCardBg('offsetY', Number(e.target.value))}
+                      className="flex-1 h-2 accent-cyan-500"
+                    />
+                    <span className="w-8 text-right text-cyan-300">{cardBgSettings.offsetY}px</span>
+                  </label>
+                </>
+              )}
             </div>
           )}
         </div>,

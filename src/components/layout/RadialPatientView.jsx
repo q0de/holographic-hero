@@ -42,8 +42,10 @@ export function RadialPatientView({
       />
       
       {/* Top bar - Symptoms */}
-      <div className="absolute top-2 left-3 right-3 z-20">
-        <SymptomsDisplay symptoms={symptoms} interpolate={interpolate} />
+      <div className="absolute top-2 left-3 right-3" style={{ zIndex: 100, pointerEvents: 'none' }}>
+        <div style={{ pointerEvents: 'auto' }}>
+          <SymptomsDisplay symptoms={symptoms} interpolate={interpolate} />
+        </div>
       </div>
       
       {/* Center - Patient + Drop Zone */}

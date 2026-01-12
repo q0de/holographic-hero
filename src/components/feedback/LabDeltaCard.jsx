@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion'
 
-export function LabDeltaCard({ name, before, after, unit }) {
+export function LabDeltaCard({ name, before, after, unit, bgColor = 'rgba(255, 255, 255, 1.0)', bgOpacity = 0.3 }) {
   const beforeNum = parseFloat(before)
   const afterNum = parseFloat(after)
   
@@ -19,11 +19,17 @@ export function LabDeltaCard({ name, before, after, unit }) {
                     worsened ? 'rgba(239, 68, 68, 0.2)' :
                     'transparent'
 
+  // Extract RGB from bgColor and apply opacity
+  const rgbMatch = bgColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+  const backgroundColor = rgbMatch 
+    ? `rgba(${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]}, ${bgOpacity})`
+    : `rgba(255, 255, 255, ${bgOpacity})`
+
   return (
     <div
       className="flex items-center justify-between p-3 rounded-lg"
       style={{
-        background: 'rgba(15, 23, 42, 0.6)',
+        background: backgroundColor,
         border: `1px solid ${borderColor}`,
         boxShadow: `0 0 15px ${glowColor}`
       }}
