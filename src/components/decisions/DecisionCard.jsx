@@ -334,7 +334,7 @@ export function DecisionCard({
 
       {/* Title */}
       <div 
-        className={`text-[11px] font-semibold mb-0.5 pr-6 leading-tight pointer-events-none line-clamp-2 relative`}
+        className={`text-[14px] font-semibold mb-0.5 pr-6 leading-tight pointer-events-none line-clamp-2 relative`}
         style={{ 
           zIndex: 3,
           color: cardBgSettings.textMode === 'dark' ? '#330145' : '#ffffff'
@@ -345,7 +345,7 @@ export function DecisionCard({
 
       {/* Description */}
       <div 
-        className="text-[10px] leading-tight mb-1.5 pointer-events-none line-clamp-2 relative"
+        className="text-[12px] leading-tight mb-1.5 pointer-events-none line-clamp-2 relative"
         style={{ 
           zIndex: 3,
           color: cardBgSettings.textMode === 'dark' ? 'rgba(51, 1, 69, 0.8)' : 'rgb(148, 163, 184)'
@@ -357,7 +357,7 @@ export function DecisionCard({
       {/* Duration */}
       {duration && (
         <div 
-          className="flex items-center gap-1 text-[9px] pointer-events-none relative"
+          className="flex items-center gap-1 text-[11px] pointer-events-none relative"
           style={{ 
             zIndex: 3,
             color: cardBgSettings.textMode === 'dark' ? 'rgba(51, 1, 69, 0.7)' : 'rgb(100, 116, 139)'

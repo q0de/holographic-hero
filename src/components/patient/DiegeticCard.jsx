@@ -114,14 +114,14 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
         </AnimatePresence>
         
         {/* Label */}
-        <div className="text-[8px] uppercase tracking-wider text-slate-500 truncate flex items-center gap-1">
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 truncate flex items-center gap-1">
           {!isLab && <span>{data.icon || '💊'}</span>}
           <span className="truncate">{data.shortName || data.name?.slice(0, 8)}</span>
         </div>
         
         {/* Value */}
         <div 
-          className="text-sm font-bold leading-none mt-0.5"
+          className="text-base font-bold leading-none mt-0.5"
           style={{ 
             color: textColors[status],
             textShadow: status !== 'default' ? `0 0 8px ${glowColors[status]}` : 'none'
@@ -129,7 +129,7 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
         >
           {displayValue}
           {data.unit && (
-            <span className="text-[8px] font-normal text-slate-500 ml-0.5">
+            <span className="text-[10px] font-normal text-slate-500 ml-0.5">
               {data.unit}
             </span>
           )}
@@ -138,7 +138,7 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
         {/* Status indicator for labs */}
         {isLab && status !== 'default' && (
           <div 
-            className="text-[7px] uppercase font-medium"
+            className="text-[9px] uppercase font-medium"
             style={{ color: borderColors[status] }}
           >
             {status === 'danger' && '⚠ CRIT'}
@@ -178,14 +178,14 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
       </AnimatePresence>
       
       {/* Icon and Label */}
-      <div className="text-[10px] uppercase tracking-wider text-slate-400 mb-1 truncate">
+      <div className="text-[12px] uppercase tracking-wider text-slate-400 mb-1 truncate">
         {!isLab && <span className="mr-1">{data.icon || '💊'}</span>}
         {data.name}
       </div>
       
       {/* Value */}
       <div 
-        className="text-base font-bold leading-tight"
+        className="text-lg font-bold leading-tight"
         style={{ 
           color: textColors[status],
           textShadow: status !== 'default' ? `0 0 10px ${glowColors[status]}` : 'none'
@@ -193,7 +193,7 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
       >
         {displayValue}
         {data.unit && (
-          <span className="text-[10px] font-normal text-slate-400 ml-1">
+          <span className="text-[12px] font-normal text-slate-400 ml-1">
             {data.unit}
           </span>
         )}
@@ -202,7 +202,7 @@ export function DiegeticCard({ type, data, delay = 0, interpolate, compact = fal
       {/* Status indicator for labs */}
       {isLab && status !== 'default' && (
         <div 
-          className="text-[9px] uppercase mt-1 font-medium"
+          className="text-[11px] uppercase mt-1 font-medium"
           style={{ color: borderColors[status] }}
         >
           {status === 'danger' && '⚠ CRITICAL'}

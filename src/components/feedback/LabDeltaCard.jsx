@@ -35,12 +35,12 @@ export function LabDeltaCard({ name, before, after, unit, bgColor = 'rgba(255, 2
       }}
     >
       {/* Name */}
-      <div className="text-sm font-medium" style={{ color: '#330145' }}>
+      <div className="text-base font-medium" style={{ color: '#330145' }}>
         {name}
       </div>
 
       {/* Values */}
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-base">
         {/* Before value */}
         <span className="font-mono" style={{ color: '#330145', opacity: 0.7 }}>
           {before}
@@ -50,7 +50,7 @@ export function LabDeltaCard({ name, before, after, unit, bgColor = 'rgba(255, 2
         <motion.span
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className={`text-base ${improved ? 'text-success-400' : worsened ? 'text-danger-400' : 'text-slate-500'}`}
+          className={`text-lg ${improved ? 'text-success-400' : worsened ? 'text-danger-400' : 'text-slate-500'}`}
         >
           →
         </motion.span>
@@ -68,7 +68,7 @@ export function LabDeltaCard({ name, before, after, unit, bgColor = 'rgba(255, 2
 
         {/* Unit */}
         {unit && (
-          <span className="text-xs" style={{ color: '#330145', opacity: 0.7 }}>
+          <span className="text-sm" style={{ color: '#330145', opacity: 0.7 }}>
             {unit}
           </span>
         )}
