@@ -165,8 +165,10 @@ export function FeedbackModal({
 
   return (
     <>
-      {/* Modal Blur Controls - rendered outside phone frame - only when modal is open */}
-      {devControlsContainer && isOpen && createPortal(
+      {/* Debug controls removed - Time Effect control is in TimePassageEffects.jsx */}
+      
+      {/* Hidden: Modal Blur Controls and Continue Button Controls have been removed */}
+      {false && devControlsContainer && isOpen && createPortal(
         <div className="relative" style={{ order: -100 }}>
           <button
             onClick={() => setShowControls(!showControls)}

@@ -131,8 +131,8 @@ function AppContent() {
   
   return (
     <div className="flex items-center justify-center min-h-screen gap-4">
-      {/* Dev Controls Panel - outside phone frame */}
-      <div id="dev-controls" className="fixed left-4 top-4 z-[9999] flex flex-col gap-2">
+      {/* Dev Controls Panel - outside phone frame - HIDDEN */}
+      <div id="dev-controls" className="hidden">
         {/* Controls will be portaled here from child components */}
       </div>
       
